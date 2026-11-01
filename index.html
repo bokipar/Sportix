@@ -2,105 +2,214 @@
 <html lang="mk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>iOS Haptic Showcase</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>iOS Haptic Studio</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <style>
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: -apple-system, sans-serif;
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            user-select: none; 
+            -webkit-user-select: none; 
+        }
+        
+        body { 
+            background-color: #000; 
+            color: #fff; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            padding: 40px 20px;
             min-height: 100vh;
-            gap: 20px;
         }
-        .btn-container {
-            position: relative;
-            width: 280px;
-            height: 60px;
-            background: #1c1c1e;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: #8e8e93;
+            font-size: 14px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .section-title {
+            align-self: flex-start;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #8e8e93;
+            margin-bottom: 10px;
+            margin-left: 5px;
             font-weight: 600;
-            color: #0095f6;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            letter-spacing: 0.5px;
         }
-        /* Невидливиот нативен прекинувач кој го тригерува физичкиот Taptic Engine */
-        .ios-switch-trigger {
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            position: relative;
+            height: 70px;
+            background: #1c1c1e;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid #2c2c2e;
+            transition: background 0.1s;
+        }
+
+        .btn:active {
+            background: #2c2c2e;
+        }
+
+        .btn-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .btn-desc {
+            font-size: 11px;
+            color: #8e8e93;
+            margin-top: 3px;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        /* Системски прекинувач сокриен во позадина */
+        .haptic-trigger {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             opacity: 0;
             cursor: pointer;
-            z-index: 2;
-        }
-        select, input[type="date"] {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0;
-            z-index: 2;
+            z-index: 5;
         }
     </style>
 </head>
 <body>
 
-    <h2>iOS Нативна Хаптика</h2>
+    <h1>iOS Haptic Studio</h1>
+    <div class="subtitle">Тестирај ги сите нативни ефекти на Taptic Engine преку PWA</div>
 
-    <!-- 1. СТАНДАРДЕН СИСТЕМСКИ КЛИК (Преку Switch) -->
-    <div class="btn-container">
-        1. Стандарден Клик (.light)
-        <input type="checkbox" switch class="ios-switch-trigger">
+    <!-- КАТЕГОРИЈА 1: ФИЗИЧКИ УДАРИ -->
+    <div class="section-title">UIImpactFeedbackGenerator</div>
+    <div class="grid">
+        <div class="btn">
+            <span class="btn-title">Light</span>
+            <span class="btn-desc">Лесен клик</span>
+            <input type="checkbox" switch class="haptic-trigger" onclick="triggerNativeHaptic('light')">
+        </div>
+        <div class="btn">
+            <span class="btn-title">Medium</span>
+            <span class="btn-desc">Стандарден одзив</span>
+            <input type="checkbox" switch class="haptic-trigger" onclick="triggerNativeHaptic('medium')">
+        </div>
+        <div class="btn">
+            <span class="btn-title">Heavy</span>
+            <span class="btn-desc">Силен Инстаграм удар</span>
+            <input type="checkbox" switch class="haptic-trigger" onclick="triggerNativeHaptic('heavy')">
+        </div>
+        <div class="btn">
+            <span class="btn-title">Soft</span>
+            <span class="btn-desc">Мек и пригушен</span>
+            <input type="checkbox" switch class="haptic-trigger" onclick="triggerNativeHaptic('soft')">
+        </div>
+        <div class="btn full-width">
+            <span class="btn-title">Rigid</span>
+            <span class="btn-desc">Крут, остар и интензивен удар</span>
+            <input type="checkbox" switch class="haptic-trigger" onclick="triggerNativeHaptic('rigid')">
+        </div>
     </div>
 
-    <!-- 2. ДУПЛИ / ПОСИЛЕН УДАР (Преку брза серија на микро-прекинувачи во JS) -->
-    <div class="btn-container" id="heavy-btn">
-        2. Посилен Удар (.heavy)
-    </div>
-
-    <!-- 3. СЕЛЕКТОРСКИ МИКРО-КЛИК (Се активира при промена на опција) -->
-    <div class="btn-container">
-        3. Селекторски Микро-клик
-        <select onchange="this.blur()">
-            <option>Опција 1</option>
-            <option>Опција 2</option>
-            <option>Опција 3</option>
-        </select>
-    </div>
-
-    <!-- 4. ДАТУМСКИ СЛАТКИ КЛИКОВИ (Вграден iOS систем за тркалање) -->
-    <div class="btn-container">
-        4. Датумски Скрол Клик
-        <input type="date">
+    <!-- КАТЕГОРИЈА 2: ИЗВЕСТУВАЊА -->
+    <div class="section-title">UINotificationFeedbackGenerator</div>
+    <div class="grid">
+        <div class="btn full-width" style="border-left: 4px solid #34c759;">
+            <span class="btn-title" style="color: #34c759;">Success</span>
+            <span class="btn-desc">Два брзи клика (Apple Pay ефект)</span>
+            <input type="checkbox" switch class="haptic-trigger" onclick="triggerNativeHaptic('success')">
+        </div>
+        <div class="btn full-width" style="border-left: 4px solid #ffcc00;">
+            <span class="btn-title" style="color: #ffcc00;">Warning</span>
+            <span class="btn-desc">Два побавни остри клика</span>
+            <input type="checkbox" switch class="haptic-trigger" onclick="triggerNativeHaptic('warning')">
+        </div>
+        <div class="btn full-width" style="border-left: 4px solid #ff3b30;">
+            <span class="btn-title" style="color: #ff3b30;">Error</span>
+            <span class="btn-desc">Серија од 4 брзи тресења (FaceID грешка)</span>
+            <input type="checkbox" switch class="haptic-trigger" onclick="triggerNativeHaptic('error')">
+        </div>
     </div>
 
     <script>
-        // Код за симулирање на Посилен / Потежок удар (Heavy Haptic)
-        const heavyBtn = document.getElementById('heavy-btn');
-        let lastTap = 0;
+        // Универзален нативен хаптички мотор прилагоден за iOS
+        function generatePulse(msDelay) {
+            const container = document.createElement('div');
+            const id = 'h-' + Math.random().toString(36).substring(2);
+            container.innerHTML = `<input type="checkbox" id="${id}" switch><label for="${id}"></label>`;
+            container.setAttribute("style", "position:fixed; opacity:0; pointer-events:none;");
+            document.body.appendChild(container);
+            const label = container.querySelector('label');
+            
+            setTimeout(() => { label.click(); }, msDelay);
+            setTimeout(() => { container.remove(); }, msDelay + 100);
+        }
 
-        heavyBtn.addEventListener('click', () => {
-            try {
-                // Креираме моментален невидлив switch прекинувач
-                const el = document.createElement('div');
-                const id = 'h-' + Math.random().toString(36).substring(2);
-                el.innerHTML = `<input type="checkbox" id="${id}" switch><label for="${id}"></label>`;
-                el.setAttribute("style", "position:fixed; opacity:0; pointer-events:none;");
-                document.body.appendChild(el);
-                
-                const label = el.querySelector('label');
-                
-                // Три брзи последователни кликови за дел од секунда го тераат Taptic Engine да удри посилно
-                label.click();
-                setTimeout(() => { label.click(); }, 20);
-                setTimeout(() => { label.click(); }, 40);
-                
-                setTimeout(() => { el.remove(); }, 150);
-            } catch (e) { console.log(e); }
-        });
+        function triggerNativeHaptic(type) {
+            if (type === 'light') {
+                // Веќе се активира автоматски од самиот физички switch на елементот
+            } 
+            else if (type === 'medium') {
+                generatePulse(25);
+            } 
+            else if (type === 'heavy') {
+                generatePulse(20);
+                generatePulse(40);
+            } 
+            else if (type === 'soft') {
+                generatePulse(45);
+            }
+            else if (type === 'rigid') {
+                generatePulse(15);
+                generatePulse(30);
+            }
+            else if (type === 'success') {
+                // Успех: Две брзи ситни нагодувања во ритам
+                generatePulse(40);
+            } 
+            else if (type === 'warning') {
+                // Предупредување: Два потешки и поодалечени удари
+                generatePulse(80);
+            } 
+            else if (type === 'error') {
+                // Грешка: Четири експресни силни системски отчукувања
+                generatePulse(30);
+                generatePulse(60);
+                generatePulse(90);
+            }
+        }
+
+        document.addEventListener('gesturestart', e => e.preventDefault());
     </script>
 </body>
 </html>
