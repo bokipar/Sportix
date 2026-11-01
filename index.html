@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>iOS Core Haptics Lab</title>
+    <title>iOS Haptic Engineer Studio</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,177 +15,135 @@
         h1 { font-size: 24px; font-weight: 700; margin-bottom: 5px; text-align: center; }
         .subtitle { color: #8e8e93; font-size: 13px; margin-bottom: 25px; text-align: center; }
         
-        .monitor-panel { width: 100%; max-width: 380px; background: #1c1c1e; border-radius: 16px; padding: 18px; margin-bottom: 25px; border: 1px solid #2c2c2e; }
-        .monitor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 11px; color: #8e8e93; font-weight: 600; text-transform: uppercase; }
-        .live-metrics { display: flex; justify-content: space-between; gap: 10px; }
-        .metric-card { background: #2c2c2e; padding: 10px; border-radius: 10px; flex: 1; text-align: center; }
-        .metric-num { font-size: 16px; font-weight: 700; color: #34c759; font-family: monospace; }
-        .metric-txt { font-size: 9px; color: #8e8e93; text-transform: uppercase; margin-top: 2px; }
+        /* ПАНЕЛ ЗА КОНТРОЛА И СЛАЈДЕРИ */
+        .control-panel { width: 100%; max-width: 380px; background: #1c1c1e; border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px solid #2c2c2e; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .panel-row { margin-bottom: 20px; }
+        .panel-row:last-child { margin-bottom: 0; }
+        .label-group { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #a8a8a8; }
+        .label-group span b { color: #0095f6; }
+        
+        /* Стилизирање на слајдерите */
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #2c2c2e; border-radius: 3px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: #0095f6; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.4); transition: transform 0.1s; }
+        input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.2); }
 
-        .section-title { align-self: flex-start; font-size: 12px; text-transform: uppercase; color: #8e8e93; margin: 15px 0 8px 5px; font-weight: 600; letter-spacing: 0.5px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 380px; }
+        /* ГЛАВНО КУТИШТЕ ЗА ТЕСТИРАЊЕ (КОПЧЕ) */
+        .test-pad { width: 100%; max-width: 380px; height: 120px; background: linear-gradient(135deg, #1c1c1e, #2c2c2e); border: 2px dashed #0095f6; border-radius: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; position: relative; margin-bottom: 20px; transition: border-style 0.2s; }
+        .test-pad:active { background: #2c2c2e; }
+        .pad-title { font-size: 18px; font-weight: 700; color: #0095f6; }
+        .pad-desc { font-size: 12px; color: #8e8e93; margin-top: 4px; }
         
-        .btn { position: relative; height: 75px; background: #1c1c1e; border-radius: 14px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border: 1px solid #2c2c2e; text-align: center; padding: 0 10px; }
-        .btn:active { background: #2c2c2e; }
-        .btn-lbl { font-size: 14px; font-weight: 600; }
-        .btn-sub { font-size: 10px; color: #8e8e93; margin-top: 3px; }
-        .wide { grid-column: span 2; }
-        
-        .haptic-gate { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5; }
+        /* Нативниот сокриен оверлеј слој */
+        .haptic-switch-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 10; cursor: pointer; }
+
+                /* ИНСТРУМЕНТ ЗА МЕРЕЊЕ И ДИЈАГНОСТИКА */
+        .stats-box { width: 100%; max-width: 380px; background: #121212; border-radius: 12px; padding: 12px 15px; border: 1px solid #1c1c1c; display: flex; justify-content: space-between; font-family: monospace; font-size: 12px; color: #8e8e93; }
+        .stats-box span b { color: #34c759; }
     </style>
 </head>
 <body>
 
-    <h1>Taptic Engine Lab</h1>
-    <div class="subtitle">Инженерска софтверска симулација на Core Haptics</div>
+    <h1>Haptic Lab Engine</h1>
+    <div class="subtitle">Креирај и калибрирај сопствени системски вибрации</div>
 
-    <div class="monitor-panel">
-        <div class="monitor-header">
-            <span>Анализатор на Сигнал</span>
-            <span style="color: #34c759;">Сензори Активни</span>
+    <!-- ТВОЈОТ КОНТРОЛЕН ПАНЕЛ ОД КАДЕ ШТО МЕНУВАШ -->
+    <div class="control-panel">
+        <!-- Слајдер 1: Број на импулси -->
+        <div class="panel-row">
+            <div class="label-group">
+                <span>Број на импулси (Pulses)</span>
+                <span><b id="lbl-pulses">3</b> пати</span>
+            </div>
+            <input type="range" id="input-pulses" min="1" max="6" value="3" oninput="updateLiveSettings()">
         </div>
-        <div class="live-metrics">
-            <div class="metric-card">
-                <div class="metric-num" id="m-pattern">STANDBY</div>
-                <div class="metric-txt">Патерн</div>
+
+        <!-- Слајдер 2: Интервал помеѓу нив -->
+        <div class="panel-row">
+            <div class="label-group">
+                <span>Растојание / Микро-пауза</span>
+                <span><b id="lbl-interval">25</b> ms</span>
             </div>
-            <div class="metric-card">
-                <div class="metric-num" id="m-pulses">0</div>
-                <div class="metric-txt">Импулси</div>
+            <input type="range" id="input-interval" min="10" max="150" value="25" oninput="updateLiveSettings()">
+        </div>
+
+        <!-- Слајдер 3: Сила -->
+        <div class="panel-row">
+            <div class="label-group">
+                <span>Пресметан Интензитет</span>
+                <span><b id="lbl-amplitude">85</b> %</span>
             </div>
-            <div class="metric-card">
-                <div class="metric-num" id="m-latency">0.0ms</div>
-                <div class="metric-txt">Латенција</div>
-            </div>
+            <input type="range" id="input-amplitude" min="10" max="100" value="85" oninput="updateLiveSettings()">
         </div>
     </div>
 
-        <!-- ТЕСТ КАТЕГОРИЈА 1: UIIMPACTFEEDBACK -->
-    <div class="section-title">UIImpactFeedbackGenerator</div>
-    <div class="grid">
-        <div class="btn">
-            <span class="btn-lbl" style="color: #30a2ff;">Light Impact</span>
-            <span class="btn-sub">Лесен фабрички клик</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('light')">
-        </div>
-        <div class="btn">
-            <span class="btn-lbl" style="color: #30a2ff;">Medium Impact</span>
-            <span class="btn-sub">Стандарден одзив</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('medium')">
-        </div>
-        <div class="btn">
-            <span class="btn-lbl" style="color: #30a2ff;">Heavy Impact</span>
-            <span class="btn-sub">Инстаграм лајк бран</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('heavy')">
-        </div>
-        <div class="btn">
-            <span class="btn-lbl" style="color: #30a2ff;">Soft Impact</span>
-            <span class="btn-sub">Пригушен низок бас</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('soft')">
-        </div>
-        <div class="btn wide">
-            <span class="btn-lbl" style="color: #30a2ff;">Rigid Impact</span>
-            <span class="btn-sub">Остар, крут и многу густ микро-удар</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('rigid')">
-        </div>
+    <!-- ГОЛЕМОТО СКУШТЕ КАДЕ ШТО КЛИКАШ И ТЕСТИРАШ ОДЗИВ -->
+    <div class="test-pad">
+        <span class="pad-title">ПРИТИСНИ ТУКА</span>
+        <span class="pad-desc">Направи допир за да го осетиш твојот патерн</span>
+        
+        <!-- Нативниот оверлеј кој го тригерува Taptic Engine со твојот реална допир -->
+        <input type="checkbox" switch class="haptic-switch-overlay" id="custom-haptic-trigger">
     </div>
 
-    <!-- ТЕСТ КАТЕГОРИЈА 2: ДИНАМИЧКИ СИСТЕМСКИ СИГНАЛИ -->
-    <div class="section-title">UINotification & Advanced Patterns</div>
-    <div class="grid">
-        <div class="btn wide" style="border-left: 4px solid #34c759;">
-            <span class="btn-lbl" style="color: #34c759;">Success Notification</span>
-            <span class="btn-sub">Два брзи тактилно темпирани импулси (Apple Pay)</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('success')">
-        </div>
-        <div class="btn wide" style="border-left: 4px solid #ffcc00;">
-            <span class="btn-lbl" style="color: #ffcc00;">Warning Pattern</span>
-            <span class="btn-sub">Два поодалечени тешки системски прекини</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('warning')">
-        </div>
-        <div class="btn wide" style="border-left: 4px solid #ff3b30;">
-            <span class="btn-lbl" style="color: #ff3b30;">Failure / Error</span>
-            <span class="btn-sub">Брза каскадна серија од 4 калибрирани тресења</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('error')">
-        </div>
-        <div class="btn wide" style="border-left: 4px solid #af52de;">
-            <span class="btn-lbl" style="color: #af52de;">Continuous Wheel Sim</span>
-            <span class="btn-sub">Симулација на динамичко тркалање со забрзување</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('wheel')">
-        </div>
+    <!-- ДИЈАГНОСТИКА -->
+    <div class="stats-box">
+        <span>ТАКТ: <b id="stat-pulses">3 ПУЛСА</b></span>
+        <span>ИНТЕРВАЛ: <b id="stat-ms">25ms</b></span>
+        <span>ОДЗИВ: <b id="stat-latency">0.0ms</b></span>
     </div>
 
     <script>
-        // Помошна функција за испраќање на калибриран микро-импулс во точно одредено време
-        function dispatchHapticPulse(delayMs) {
+        const triggerOverlay = document.getElementById('custom-haptic-trigger');
+
+        // Читање и ажурирање на вредностите во реално време на екранот
+        function updateLiveSettings() {
+            const pulses = document.getElementById('input-pulses').value;
+            const interval = document.getElementById('input-interval').value;
+            const amplitude = document.getElementById('input-amplitude').value;
+
+            document.getElementById('lbl-pulses').innerText = pulses;
+            document.getElementById('lbl-interval').innerText = interval;
+            document.getElementById('lbl-amplitude').innerText = amplitude;
+
+            document.getElementById('stat-pulses').innerText = pulses + ' ПУЛСА';
+            document.getElementById('stat-ms').innerText = interval + 'ms';
+        }
+
+        // Помошен извршител кој испраќа поединечни импулси кон Taptic Engine во одредени милисекунди
+        function dispatchEnginePulse(ms) {
             const wrapper = document.createElement('div');
-            const uid = 'ch-pulse-' + Math.random().toString(36).substring(2);
-            wrapper.innerHTML = `<input type="checkbox" id="${uid}" switch><label for="${uid}"></label>`;
+            const uniqueId = 'lab-gate-' + Math.random().toString(36).substring(2);
+            wrapper.innerHTML = `<input type="checkbox" id="${uniqueId}" switch><label for="${uniqueId}"></label>`;
             wrapper.setAttribute("style", "position:fixed; opacity:0; pointer-events:none; top:0; left:0;");
             document.body.appendChild(wrapper);
-            const targetNode = wrapper.querySelector('label');
+            const actionNode = wrapper.querySelector('label');
             
-            setTimeout(() => { targetNode.click(); }, delayMs);
-            setTimeout(() => { wrapper.remove(); }, delayMs + 120);
+            setTimeout(() => { actionNode.click(); }, ms);
+            setTimeout(() => { wrapper.remove(); }, ms + 150);
         }
 
-        // НАПРЕДЕН МОДУЛАТОР НА СИГНАЛИ
-        function runHapticEngine(pattern) {
-            const startDiagnostic = performance.now();
-            let totalPulses = 0;
+        // ГЛАВЕН ИНЖЕНЕРСКИ МЕХАНИЗАМ ЗА СИМУЛАЦИЈА НА ДОПИР
+        triggerOverlay.addEventListener('click', () => {
+            const startPerf = performance.now();
+            
+            // Ги земаме тековните вредности директно од твоите слајдери
+            const totalPulses = parseInt(document.getElementById('input-pulses').value);
+            const intervalMs = parseInt(document.getElementById('input-interval').value);
 
-            if (pattern === 'light') {
-                totalPulses = 1;
-            } 
-            else if (pattern === 'medium') {
-                totalPulses = 2;
-                dispatchHapticPulse(38); // Доцнење од 38ms за спречување на софтверски филтер
-            } 
-            else if (pattern === 'heavy') {
-                totalPulses = 3;
-                dispatchHapticPulse(24);
-                dispatchHapticPulse(48);
-            } 
-            else if (pattern === 'soft') {
-                totalPulses = 1;
-                dispatchHapticPulse(55); // Проширен тајминг за пониска тактилна фреквенција
-            }
-            else if (pattern === 'rigid') {
-                totalPulses = 2;
-                dispatchHapticPulse(18); // Многу тесен интервал за остар удар
-            }
-            else if (pattern === 'success') {
-                totalPulses = 2;
-                dispatchHapticPulse(42);
-            } 
-            else if (pattern === 'warning') {
-                totalPulses = 2;
-                dispatchHapticPulse(85); // Широк интервал за предупредување
-            } 
-            else if (pattern === 'error') {
-                totalPulses = 4;
-                dispatchHapticPulse(28);
-                dispatchHapticPulse(56);
-                dispatchHapticPulse(84);
-            }
-            else if (pattern === 'wheel') {
-                totalPulses = 5;
-                // Калибрирана серија на импулси која симулира забавување на механичко тркалце
-                dispatchHapticPulse(20);
-                dispatchHapticPulse(45);
-                dispatchHapticPulse(75);
-                dispatchHapticPulse(110);
+            // Креирање на сопствена хаптичка композиција врз основа на твоите математички вредности
+            // Првиот пулс оди автоматски од самиот физички клик, наредните се темпираат математички
+            for (let i = 1; i < totalPulses; i++) {
+                dispatchEnginePulse(i * intervalMs);
             }
 
+            // Мерење на брзината со која хардверот го обработи твојот код
             requestAnimationFrame(() => {
-                const endDiagnostic = performance.now();
-                document.getElementById('m-latency').innerText = (endDiagnostic - startDiagnostic).toFixed(1) + 'ms';
-                document.getElementById('m-pulses').innerText = totalPulses;
-                document.getElementById('m-pattern').innerText = pattern.toUpperCase();
+                const endPerf = performance.now();
+                document.getElementById('stat-latency').innerText = (endPerf - startPerf).toFixed(1) + 'ms';
             });
-        }
+        });
 
         document.addEventListener('gesturestart', e => e.preventDefault());
-    </script>
+    </style>
 </body>
 </html>
