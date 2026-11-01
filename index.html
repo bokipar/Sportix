@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>iOS Ultimate Haptic Engine Laboratory</title>
+    <title>iOS Ultimate Haptic Laboratory with Live Waveform</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,6 +15,12 @@
         h1 { font-size: 22px; font-weight: 700; margin-bottom: 5px; text-align: center; letter-spacing: -0.5px; }
         .subtitle { color: #8e8e93; font-size: 13px; margin-bottom: 20px; text-align: center; }
         
+        /* 1. ГРАФИЧКИ ГЕНЕРАТОР НА БРАНОВИ (WAVEFORM VISUALIZER) */
+        .wave-panel { width: 100%; max-width: 380px; background: #121212; border-radius: 14px; padding: 15px; margin-bottom: 15px; border: 1px solid #1c1c1c; }
+        .wave-header { font-size: 11px; color: #8e8e93; font-weight: 600; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
+        .wave-canvas { width: 100%; height: 60px; display: flex; align-items: center; justify-content: center; gap: 3px; background: #000; border-radius: 8px; overflow: hidden; padding: 0 10px; }
+        .wave-bar { width: 4px; height: 4px; background: #34c759; border-radius: 2px; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
         /* ЦЕНТРАЛЕН КОНТРОЛЕН ПАНЕЛ */
         .control-panel { width: 100%; max-width: 380px; background: #1c1c1e; border-radius: 16px; padding: 18px; margin-bottom: 15px; border: 1px solid #2c2c2e; }
         .panel-section { margin-bottom: 18px; }
@@ -23,18 +29,12 @@
         .label-group { display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 600; margin-bottom: 8px; color: #a8a8a8; }
         .label-group span b { color: #34c759; }
         
-        /* Контролни слајдери со фикс за iOS */
         input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #2c2c2e; border-radius: 3px; outline: none; touch-action: pan-x !important; pointer-events: auto !important; margin-bottom: 10px; }
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: #34c759; border-radius: 50%; cursor: pointer; pointer-events: auto !important; }
 
-        /* Копчиња за инстантна промена ако слајдерот кочи */
         .selector-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; width: 100%; }
         .selector-num { background: #2c2c2e; border: 1px solid #3a3a3c; border-radius: 8px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #fff; cursor: pointer; pointer-events: auto !important; }
         .selector-num.active { background: #34c759; border-color: #34c759; color: #000; }
-
-        /* ДИЈАГНОСТИЧКИ ДИСПЛЕЈ */
-        .stats-box { width: 100%; max-width: 380px; background: #121212; border-radius: 12px; padding: 12px; border: 1px solid #1c1c1c; display: flex; justify-content: space-between; font-family: monospace; font-size: 11px; color: #8e8e93; margin-bottom: 15px; }
-        .stats-box span b { color: #34c759; }
 
         /* ЗОНА ЗА ТЕСТИРАЊЕ СО SWIPE */
         .swipe-zone { width: 100%; max-width: 380px; height: 90px; background: #1c1c1e; border: 2px dashed #34c759; border-radius: 16px; display: flex; justify-content: space-around; align-items: center; padding: 0 15px; position: relative; overflow: hidden; margin-bottom: 15px; pointer-events: auto !important; }
@@ -44,19 +44,17 @@
 </head>
 <body>
 
-    <h1>Haptic Lab Suite v2.0</h1>
-    <div class="subtitle">Целосна софтверска и хардверска модулација на Taptic Engine</div>
+    <h1>Haptic Lab Suite v3.0</h1>
+    <div class="subtitle">Целосна софтверска модулација и графичка визуелизација</div>
 
-    <!-- ДИЈАГНОСТИЧКИ ДИСПЛЕЈ -->
-    <div class="stats-box">
-        <span>КАНАЛ: <b id="stat-pulses">4 ИМПУЛСА</b></span>
-        <span>ИНТЕРВАЛ: <b id="stat-ms">35ms</b></span>
-        <span>ЈАЧИНА: <b id="stat-amp">80%</b></span>
+    <!-- ЖИВ ГРАФИЧКИ ГЕНЕРАТОР НА ТАПТИЧКИ БРАНОВИ -->
+    <div class="wave-panel">
+        <div class="wave-header">Генератор на хаптички бран (Live Waveform)</div>
+        <div class="wave-canvas" id="canvas-container"></div>
     </div>
 
-    <!-- ГЛАВЕН ПАНЕЛ ОД КАДЕ ШТО МЕНУВАШ СЀ -->
+        <!-- ГЛАВЕН ПАНЕЛ ОД КАДЕ ШТО МЕНУВАШ СЀ -->
     <div class="control-panel">
-        <!-- СЕКЦИЈА 1: КОНТРОЛА НА БРОЈ НА ВИБРАЦИИ -->
         <div class="panel-section">
             <div class="label-group">
                 <span>Број на импулси (Pulses)</span>
@@ -65,7 +63,7 @@
             <input type="range" id="input-count" min="1" max="6" value="4" oninput="changeCountBySlider(this.value)">
             <div class="selector-grid">
                 <div class="selector-num" onclick="changeCountByBtn(1)">1</div>
-                <div class="selector-num" onclick="changeCountByBtn(2)">2</div>
+                <div class="selector-num" onclick="changeByBtn(2)">2</div>
                 <div class="selector-num" onclick="changeCountByBtn(3)">3</div>
                 <div class="selector-num selector-num active" onclick="changeCountByBtn(4)">4</div>
                 <div class="selector-num" onclick="changeCountByBtn(5)">5</div>
@@ -73,7 +71,6 @@
             </div>
         </div>
 
-        <!-- СЕКЦИЈА 2: КОНТРОЛА НА МИКРО-ПАУЗА (ИНТЕРВАЛ) -->
         <div class="panel-section">
             <div class="label-group">
                 <span>Интервал помеѓу прекини</span>
@@ -82,10 +79,9 @@
             <input type="range" id="input-interval" min="15" max="120" value="35" oninput="updateInterval(this.value)">
         </div>
 
-        <!-- СЕКЦИЈА 3: КОНТРОЛА НА ТЕОРЕТСКА ЈАЧИНА -->
         <div class="panel-section">
             <div class="label-group">
-                <span>Теоретска сила (Amplitude)</span>
+                <span>Сила на удар (Amplitude)</span>
                 <span><b id="lbl-amplitude">80</b> %</span>
             </div>
             <input type="range" id="input-amplitude" min="20" max="100" value="80" oninput="updateAmplitude(this.value)">
@@ -97,72 +93,78 @@
         <div class="swipe-instruction" id="ins-text">Повлечи со прст од лево на десно ➔</div>
     </div>
 
-    <div style="font-family: monospace; font-size: 11px; color: #555; text-align: center; width: 100%; max-width: 380px;">
-        РЕЖИМ: <b style="color: #34c759;">ОТКЛУЧЕНА ЦЕЛОСНА ХАПТИЧКА КОНТРОЛА</b><br>
-        <span style="display:block; margin-top:4px;">Секоја промена на вредностите веднаш ги реконструира прекинувачите долу.</span>
-    </div>
-
     <script>
-        // Промена на вредностите на бројот на импулси преку слајдерот
-        function changeCountBySlider(val) {
-            updateHapticInterface(parseInt(val), null, null);
+        // Иницијално цртање на 35 барови во графичкиот генератор
+        const canvas = document.getElementById('canvas-container');
+        for (let i = 0; i < 35; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'wave-bar';
+            canvas.appendChild(bar);
         }
+        const waveBars = document.querySelectorAll('.wave-bar');
 
-        // Промена на вредностите на бројот на импулси преку брзите бројки
-        function changeCountByBtn(val) {
-            document.getElementById('input-count').value = val;
-            updateHapticInterface(val, null, null);
-        }
+        function changeCountBySlider(val) { updateHapticInterface(parseInt(val), null, null); }
+        function changeCountByBtn(val) { document.getElementById('input-count').value = val; updateHapticInterface(val, null, null); }
+        function updateInterval(val) { updateHapticInterface(null, parseInt(val), null); }
+        function updateAmplitude(val) { updateHapticInterface(null, null, parseInt(val)); }
 
-        // Промена на вредноста за микро-пауза
-        function updateInterval(val) {
-            updateHapticInterface(null, parseInt(val), null);
-        }
-
-        // Промена на вредноста за јачина
-        function updateAmplitude(val) {
-            updateHapticInterface(null, null, parseInt(val));
-        }
-
-        // ЦЕНТРАЛЕН РЕГЕНЕРАТОР НА ИНТЕРФЕЈСОТ
+        // ЦЕНТРАЛЕН МОДУЛАТОР И ГЕНЕРАТОР НА ИНТЕРФЕЈСОТ
         function updateHapticInterface(count, interval, amplitude) {
-            // Земи ги моменталните вредности ако некои се пратени како null
             const currentCount = count !== null ? count : parseInt(document.getElementById('input-count').value);
             const currentInterval = interval !== null ? interval : parseInt(document.getElementById('input-interval').value);
             const currentAmplitude = amplitude !== null ? amplitude : parseInt(document.getElementById('input-amplitude').value);
 
-            // Ажурирање на текстуалните лабели на екранот
+            // Ажурирање на текстуалните лабели
             document.getElementById('lbl-count').innerText = currentCount;
             document.getElementById('lbl-interval').innerText = currentInterval;
             document.getElementById('lbl-amplitude').innerText = currentAmplitude;
 
-            document.getElementById('stat-pulses').innerText = currentCount + ' ИМПУЛСА';
-            document.getElementById('stat-ms').innerText = currentInterval + 'ms';
-            document.getElementById('stat-amp').innerText = currentAmplitude + '%';
-
-            // Ажурирање на активната класа кај бројките
+            // Смена на активното копче кај бројките
             const btns = document.querySelectorAll('.selector-num');
             btns.forEach((btn, idx) => {
                 if (idx + 1 === currentCount) { btn.classList.add('active'); } 
                 else { btn.classList.remove('active'); }
             });
 
-            // РЕКОНСТРУКЦИЈА НА ПРЕКИНУВАЧИТЕ ВО ЗОНАТА ЗА ТЕСТИРАЊЕ
+            // 1. РЕКОНСТРУКЦИЈА НА ЖИВИОТ ГРАФИК (WAVEFORM VISUALIZATION)
+            // Прво ги ресетираме сите барови на почетна нулта точка
+            waveBars.forEach(bar => { bar.style.height = '4px'; bar.style.background = '#2c2c2e'; });
+
+            // Математички ги пресметуваме позициите на пиковите на хаптичкиот бран
+            // Растојанието помеѓу пиковите зависи директно од одбраниот интервал во ms
+            const step = Math.max(1, Math.round(currentInterval / 12)); 
+            let assignedPulses = 0;
+
+            for (let i = 2; i < waveBars.length; i += step) {
+                if (assignedPulses >= currentCount) break;
+                
+                // Му даваме на пикот висина соодветно на слајдерот за Amplitude (%)
+                const calculatedHeight = (currentAmplitude / 100) * 50;
+                waveBars[i].style.height = calculatedHeight + 'px';
+                
+                // Промена на бојата во зависност од јачината (зелена за меко, црвена за силно)
+                if (currentAmplitude > 75) {
+                    waveBars[i].style.background = '#ff3b30'; // Остар силен шок
+                } else {
+                    waveBars[i].style.background = '#34c759'; // Нативен фидбек
+                }
+                assignedPulses++;
+            }
+
+            // 2. РЕКОНСТРУКЦИЈА НА ФИЗИЧКИТЕ ПРЕКИНУВАЧИ ДОЛУ ЗА SWIPE ТЕСТ
             const padZone = document.getElementById('pad-zone');
             padZone.innerHTML = `<div class="swipe-instruction" id="ins-text">Повлечи со прст од лево на десно ➔</div>`;
             
-            // Динамички пресметуваме ширински простор врз основа на одбраниот интервал во ms
-            // Колку е поголем интервалот, толку прекинувачите се цртаат поодалечени еден од друг
             for (let i = 0; i < currentCount; i++) {
                 const sw = document.createElement('input');
                 sw.setAttribute('type', 'checkbox');
                 sw.setAttribute('switch', ''); 
                 sw.className = 'real-switch';
                 
-                // Промена на визуелната маргина/растојание соодветно на слајдерот за милисекунди
-                const flexSpacing = (currentInterval / 120) * 20;
-                sw.style.marginLeft = flexSpacing + 'px';
-                sw.style.marginRight = flexSpacing + 'px';
+                // Физичкото растојание на екранот соодветствува со графичкиот приказ горе
+                const spacing = (currentInterval / 120) * 18;
+                sw.style.marginLeft = spacing + 'px';
+                sw.style.marginRight = spacing + 'px';
                 
                 sw.addEventListener('touchstart', () => {
                     const txt = document.getElementById('ins-text');
@@ -173,7 +175,7 @@
             }
         }
 
-        // Првично стартување со дефолтни параметри (4 пулса, 35ms, 80% сила)
+        // Почетно вчитување со дефолт вредности (4 пулса, 35ms, 80% јачина)
         updateHapticInterface(4, 35, 80);
 
         document.addEventListener('gesturestart', e => e.preventDefault());
