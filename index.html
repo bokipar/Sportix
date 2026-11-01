@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Like PWA</title>
+    <style>
+        body {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        /* Контејнер за сликата (како на Инстаграм) */
+        .post-container {
+            position: relative;
+            width: 380px;
+            height: 380px;
+            background: url('https://picsum.photos') center/cover;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Големото срце кое се појавува */
+        .insta-heart {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 80px;
+            color: #fff;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            pointer-events: none; /* За да не смета на кликањето */
+        }
+
+        /* Анимација за скокање на срцето */
+        .animate-heart {
+            animation: heartPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes heartPop {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            15% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.9; }
+            30% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="post-container" id="post">
+        <div class="insta-heart" id="heart">❤️</div>
+    </div>
+
+    <script>
+        const post = document.getElementById('post');
+        const heart = document.getElementById('heart');
+        let audioCtx = null;
+
+        // Напреден iOS Хаптички фидбек (Преку Web Audio)
+        function playInstaThump() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                // Фреквенција нагодена специјално за моќниот Taptic Engine на iPhone
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(78, audioCtx.currentTime); 
+
+                // Силен, брз и остар удар (исто како на Инстаграм)
+                gainNode.gain.setValueAtTime(0.9, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + 0.08);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        // Детекција на Double Tap (Дупли Клик)
+        let lastTap = 0;
+        post.addEventListener('click', function (e) {
+            const now = new Date().getTime();
+            const timesince = now - lastTap;
+            
+            if ((timesince < 300) && (timesince > 0)) {
+                // Изврши ја вибрацијата на твојот iPhone!
+                playInstaThump();
+
+                // Стартувај ја визуелната анимација
+                heart.classList.remove('animate-heart');
+                void heart.offsetWidth; // Тригер за рестарт на CSS анимација
+                heart.classList.add('animate-heart');
+            }
+            lastTap = now;
+        });
+    </script>
+</body>
+</html>
