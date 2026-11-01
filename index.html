@@ -2,139 +2,105 @@
 <html lang="mk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Instagram PWA All-Haptics</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Instagram">
-    <link rel="apple-touch-icon" href="https://flaticon.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>iOS Haptic Showcase</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
-        body { background-color: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow-x: hidden; padding-bottom: 70px; }
-        .header { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid #121212; position: sticky; top: 0; background: #000; z-index: 100; padding-top: env(safe-area-inset-top); }
-        .header h1 { font-family: 'Georgia', serif; font-style: italic; font-size: 24px; letter-spacing: -1px; }
-        .carousel-wrapper { position: relative; width: 100%; aspect-ratio: 1/1; }
-        .carousel-scroller { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
-        .carousel-scroller::-webkit-scrollbar { display: none; }
-        .slide { position: relative; min-width: 100%; height: 100%; scroll-snap-align: start; overflow: hidden; background: #050505; }
-        .post-img { width: 100%; height: 100%; object-fit: cover; }
-        .haptic-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 5; cursor: pointer; }
-        .carousel-dots { display: flex; justify-content: center; gap: 4px; margin-top: 10px; }
-        .dot { width: 6px; height: 6px; background-color: #262626; border-radius: 50%; transition: background-color 0.2s; }
-        .dot.active { background-color: #0095f6; }
-        .post { margin-bottom: 15px; background: #000; }
-        .post-header { display: flex; align-items: center; padding: 10px; }
-        .avatar { width: 32px; height: 32px; border-radius: 50%; margin-right: 10px; object-fit: cover; border: 1px solid #1c1c1c; }
-        .username { font-weight: 600; font-size: 13px; }
-        .post-actions { padding: 12px 10px 4px 10px; display: flex; justify-content: space-between; font-size: 22px; }
-        .post-actions-left { display: flex; gap: 18px; }
-        .action-container { position: relative; display: inline-block; cursor: pointer; }
-        .btn-switch { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 2; cursor: pointer; }
-        .post-info { padding: 8px 10px 10px 10px; font-size: 13.5px; }
-        .likes-count { font-weight: 600; margin-bottom: 6px; }
-        .caption span { font-weight: 600; margin-right: 6px; }
-        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; height: 49px; background: #000; border-top: 1px solid #121212; display: flex; justify-content: space-around; align-items: center; font-size: 24px; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
-        .pop-heart { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 90px; color: #fff; opacity: 0; pointer-events: none; z-index: 10; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.5)); }
-        .animate-heart { animation: heartPop 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes heartPop {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            15% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.9; }
-            30% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            75% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            gap: 20px;
+        }
+        .btn-container {
+            position: relative;
+            width: 280px;
+            height: 60px;
+            background: #1c1c1e;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #0095f6;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        /* Невидливиот нативен прекинувач кој го тригерува физичкиот Taptic Engine */
+        .ios-switch-trigger {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+        select, input[type="date"] {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            z-index: 2;
         }
     </style>
-    <div class="header">
-        <h1>Instagram</h1>
+</head>
+<body>
+
+    <h2>iOS Нативна Хаптика</h2>
+
+    <!-- 1. СТАНДАРДЕН СИСТЕМСКИ КЛИК (Преку Switch) -->
+    <div class="btn-container">
+        1. Стандарден Клик (.light)
+        <input type="checkbox" switch class="ios-switch-trigger">
     </div>
 
-    <div class="post">
-        <div class="post-header">
-            <img class="avatar" src="https://unsplash.com">
-            <div class="username">alex_travel</div>
-        </div>
-        <div class="carousel-wrapper">
-            <div class="carousel-scroller" id="scroller">
-                <div class="slide">
-                    <img class="post-img" src="https://unsplash.com">
-                    <input type="checkbox" switch class="haptic-overlay">
-                </div>
-                <div class="slide">
-                    <img class="post-img" src="https://unsplash.com">
-                    <input type="checkbox" switch class="haptic-overlay">
-                </div>
-            </div>
-            <div class="pop-heart">❤️</div>
-        </div>
-        <div class="carousel-dots">
-            <div class="dot active"></div>
-            <div class="dot"></div>
-        </div>
-        <div class="post-actions">
-            <div class="post-actions-left">
-                <div class="action-container" style="font-size: 22px;">
-                    <span id="heart-btn-1">🤍</span>
-                    <input type="checkbox" switch class="btn-switch" id="manual-like-trigger">
-                </div>
-                <div class="action-container">
-                    <span>💬</span>
-                    <input type="checkbox" switch class="btn-switch">
-                </div>
-            </div>
-        </div>
-        <div class="post-info">
-            <div class="likes-count" id="likes-1">1,420 likes</div>
-            <div class="caption"><span>alex_travel</span> Оваа верзија ги има сите веб-вибрации: лизгај десно за микро-клик, направи дупли тап за силен удар! ⚡🔥</div>
-        </div>
+    <!-- 2. ДУПЛИ / ПОСИЛЕН УДАР (Преку брза серија на микро-прекинувачи во JS) -->
+    <div class="btn-container" id="heavy-btn">
+        2. Посилен Удар (.heavy)
     </div>
 
-    <div class="nav-bar">
-        <div class="action-container">🏠<input type="checkbox" switch class="btn-switch"></div>
-        <div class="action-container">🔍<input type="checkbox" switch class="btn-switch"></div>
-        <div class="action-container">➕<input type="checkbox" switch class="btn-switch"></div>
-        <div class="action-container">👤<input type="checkbox" switch class="btn-switch"></div>
+    <!-- 3. СЕЛЕКТОРСКИ МИКРО-КЛИК (Се активира при промена на опција) -->
+    <div class="btn-container">
+        3. Селекторски Микро-клик
+        <select onchange="this.blur()">
+            <option>Опција 1</option>
+            <option>Опција 2</option>
+            <option>Опција 3</option>
+        </select>
+    </div>
+
+    <!-- 4. ДАТУМСКИ СЛАТКИ КЛИКОВИ (Вграден iOS систем за тркалање) -->
+    <div class="btn-container">
+        4. Датумски Скрол Клик
+        <input type="date">
     </div>
 
     <script>
-        let likedStates = false;
-        let likeCounts = 1420;
-        const scroller = document.getElementById('scroller');
-        const dots = document.querySelectorAll('.dot');
-        const heartPop = document.querySelector('.pop-heart');
-        const heartBtn = document.getElementById('heart-btn-1');
-        const likesText = document.getElementById('likes-1');
-        const manualLikeTrigger = document.getElementById('manual-like-trigger');
-
-        scroller.addEventListener('scroll', () => {
-            const index = Math.round(scroller.scrollLeft / scroller.offsetWidth);
-            dots.forEach((dot, i) => { dot.classList.toggle('active', i === index); });
-        });
-
-        manualLikeTrigger.addEventListener('click', () => { toggleLikeLogic(); });
-
+        // Код за симулирање на Посилен / Потежок удар (Heavy Haptic)
+        const heavyBtn = document.getElementById('heavy-btn');
         let lastTap = 0;
-        document.querySelectorAll('.haptic-overlay').forEach(overlay => {
-            overlay.addEventListener('click', () => {
-                const now = Date.now();
-                if (now - lastTap < 300) {
-                    heartPop.classList.remove('animate-heart');
-                    void heartPop.offsetWidth;
-                    heartPop.classList.add('animate-heart');
-                    if (!likedStates) { toggleLikeLogic(); }
-                }
-                lastTap = now;
-            });
-        });
 
-        function toggleLikeLogic() {
-            likedStates = !likedStates;
-            if (likedStates) { heartBtn.innerText = '❤️'; likeCounts++; } 
-            else { heartBtn.innerText = '🤍'; likeCounts--; }
-            likesText.innerText = `${likeCounts.toLocaleString()} likes`;
-        }
-        document.addEventListener('gesturestart', e => e.preventDefault());
+        heavyBtn.addEventListener('click', () => {
+            try {
+                // Креираме моментален невидлив switch прекинувач
+                const el = document.createElement('div');
+                const id = 'h-' + Math.random().toString(36).substring(2);
+                el.innerHTML = `<input type="checkbox" id="${id}" switch><label for="${id}"></label>`;
+                el.setAttribute("style", "position:fixed; opacity:0; pointer-events:none;");
+                document.body.appendChild(el);
+                
+                const label = el.querySelector('label');
+                
+                // Три брзи последователни кликови за дел од секунда го тераат Taptic Engine да удри посилно
+                label.click();
+                setTimeout(() => { label.click(); }, 20);
+                setTimeout(() => { label.click(); }, 40);
+                
+                setTimeout(() => { el.remove(); }, 150);
+            } catch (e) { console.log(e); }
+        });
     </script>
 </body>
 </html>
-
