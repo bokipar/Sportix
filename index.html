@@ -3,107 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>iOS Haptic Click Lab</title>
+    <title>iOS Ultimate Haptic Engine Laboratory</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
-        body { background-color: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 30px 20px; min-height: 100vh; }
+        body { background-color: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 30px 15px; min-height: 100vh; }
         
-        h1 { font-size: 24px; font-weight: 700; margin-bottom: 5px; text-align: center; }
-        .subtitle { color: #8e8e93; font-size: 13px; margin-bottom: 25px; text-align: center; }
+        h1 { font-size: 22px; font-weight: 700; margin-bottom: 5px; text-align: center; letter-spacing: -0.5px; }
+        .subtitle { color: #8e8e93; font-size: 13px; margin-bottom: 20px; text-align: center; }
         
-        .control-panel { width: 100%; max-width: 380px; background: #1c1c1e; border-radius: 16px; padding: 20px; margin-bottom: 25px; border: 1px solid #2c2c2e; }
-        .label-group { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #a8a8a8; }
+        /* ЦЕНТРАЛЕН КОНТРОЛЕН ПАНЕЛ */
+        .control-panel { width: 100%; max-width: 380px; background: #1c1c1e; border-radius: 16px; padding: 18px; margin-bottom: 15px; border: 1px solid #2c2c2e; }
+        .panel-section { margin-bottom: 18px; }
+        .panel-section:last-child { margin-bottom: 0; }
+        
+        .label-group { display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 600; margin-bottom: 8px; color: #a8a8a8; }
         .label-group span b { color: #34c759; }
         
-        /* ПОПРАВКА НА СЛАЈДЕРОТ: Овозможува непречено влечење на iOS */
-        input[type="range"] { -webkit-appearance: none; width: 100%; height: 8px; background: #2c2c2e; border-radius: 4px; outline: none; touch-action: pan-x !important; pointer-events: auto !important; margin-bottom: 15px; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: #34c759; border-radius: 50%; cursor: pointer; pointer-events: auto !important; }
+        /* Контролни слајдери со фикс за iOS */
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #2c2c2e; border-radius: 3px; outline: none; touch-action: pan-x !important; pointer-events: auto !important; margin-bottom: 10px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: #34c759; border-radius: 50%; cursor: pointer; pointer-events: auto !important; }
 
-        /* МРЕЖА СО БРЗИ КОПЧИЊА ЗА ИЗБОР АКО СЛАЈДЕРОТ КОЧИ */
-        .selector-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; width: 100%; margin-top: 5px; }
-        .selector-num { background: #2c2c2e; border: 1px solid #3a3a3c; border-radius: 8px; height: 35px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; transition: background 0.1s; pointer-events: auto !important; }
+        /* Копчиња за инстантна промена ако слајдерот кочи */
+        .selector-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; width: 100%; }
+        .selector-num { background: #2c2c2e; border: 1px solid #3a3a3c; border-radius: 8px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #fff; cursor: pointer; pointer-events: auto !important; }
         .selector-num.active { background: #34c759; border-color: #34c759; color: #000; }
 
-        /* ТЕСТ ПОДРАЧЈЕ ЗА SWIPE ГЕСТИКУЛАЦИЈА */
-        .swipe-zone { width: 100%; max-width: 380px; height: 100px; background: #1c1c1e; border: 2px dashed #34c759; border-radius: 16px; display: flex; justify-content: space-around; align-items: center; padding: 0 15px; position: relative; overflow: hidden; margin-bottom: 20px; pointer-events: auto !important; }
-        .swipe-instruction { position: absolute; font-size: 14px; color: #8e8e93; font-weight: 600; pointer-events: none; text-align: center; width: 100%; top: 38%; }
-        
+        /* ДИЈАГНОСТИЧКИ ДИСПЛЕЈ */
+        .stats-box { width: 100%; max-width: 380px; background: #121212; border-radius: 12px; padding: 12px; border: 1px solid #1c1c1c; display: flex; justify-content: space-between; font-family: monospace; font-size: 11px; color: #8e8e93; margin-bottom: 15px; }
+        .stats-box span b { color: #34c759; }
+
+        /* ЗОНА ЗА ТЕСТИРАЊЕ СО SWIPE */
+        .swipe-zone { width: 100%; max-width: 380px; height: 90px; background: #1c1c1e; border: 2px dashed #34c759; border-radius: 16px; display: flex; justify-content: space-around; align-items: center; padding: 0 15px; position: relative; overflow: hidden; margin-bottom: 15px; pointer-events: auto !important; }
+        .swipe-instruction { position: absolute; font-size: 13px; color: #8e8e93; font-weight: 600; pointer-events: none; text-align: center; width: 100%; top: 38%; }
         .real-switch { width: 45px; height: 45px; opacity: 0; z-index: 5; cursor: pointer; -webkit-appearance: none; pointer-events: auto !important; }
     </style>
 </head>
 <body>
 
-    <h1>Haptic Swipe Engine</h1>
-    <div class="subtitle">Калибрирање преку реални физички импулси</div>
+    <h1>Haptic Lab Suite v2.0</h1>
+    <div class="subtitle">Целосна софтверска и хардверска модулација на Taptic Engine</div>
 
+    <!-- ДИЈАГНОСТИЧКИ ДИСПЛЕЈ -->
+    <div class="stats-box">
+        <span>КАНАЛ: <b id="stat-pulses">4 ИМПУЛСА</b></span>
+        <span>ИНТЕРВАЛ: <b id="stat-ms">35ms</b></span>
+        <span>ЈАЧИНА: <b id="stat-amp">80%</b></span>
+    </div>
+
+    <!-- ГЛАВЕН ПАНЕЛ ОД КАДЕ ШТО МЕНУВАШ СЀ -->
     <div class="control-panel">
-        <div class="label-group">
-            <span>Избери број на импулси:</span>
-            <span><b id="lbl-count">4</b> вибрации</span>
+        <!-- СЕКЦИЈА 1: КОНТРОЛА НА БРОЈ НА ВИБРАЦИИ -->
+        <div class="panel-section">
+            <div class="label-group">
+                <span>Број на импулси (Pulses)</span>
+                <span><b id="lbl-count">4</b> вибрации</span>
+            </div>
+            <input type="range" id="input-count" min="1" max="6" value="4" oninput="changeCountBySlider(this.value)">
+            <div class="selector-grid">
+                <div class="selector-num" onclick="changeCountByBtn(1)">1</div>
+                <div class="selector-num" onclick="changeCountByBtn(2)">2</div>
+                <div class="selector-num" onclick="changeCountByBtn(3)">3</div>
+                <div class="selector-num selector-num active" onclick="changeCountByBtn(4)">4</div>
+                <div class="selector-num" onclick="changeCountByBtn(5)">5</div>
+                <div class="selector-num" onclick="changeCountByBtn(6)">6</div>
+            </div>
         </div>
-        
-        <!-- Оптимизиран слајдер -->
-        <input type="range" id="input-count" min="1" max="6" value="4" oninput="changeBySlider(this.value)">
-        
-        <!-- Системски копчиња како резерва -->
-        <div class="selector-grid">
-            <div class="selector-num" onclick="changeByBtn(1)">1</div>
-            <div class="selector-num" onclick="changeByBtn(2)">2</div>
-            <div class="selector-num" onclick="changeByBtn(3)">3</div>
-            <div class="selector-num" class="selector-num active" onclick="changeByBtn(4)" id="btn-default">4</div>
-            <div class="selector-num" onclick="changeByBtn(5)">5</div>
-            <div class="selector-num" onclick="changeByBtn(6)">6</div>
+
+        <!-- СЕКЦИЈА 2: КОНТРОЛА НА МИКРО-ПАУЗА (ИНТЕРВАЛ) -->
+        <div class="panel-section">
+            <div class="label-group">
+                <span>Интервал помеѓу прекини</span>
+                <span><b id="lbl-interval">35</b> ms</span>
+            </div>
+            <input type="range" id="input-interval" min="15" max="120" value="35" oninput="updateInterval(this.value)">
+        </div>
+
+        <!-- СЕКЦИЈА 3: КОНТРОЛА НА ТЕОРЕТСКА ЈАЧИНА -->
+        <div class="panel-section">
+            <div class="label-group">
+                <span>Теоретска сила (Amplitude)</span>
+                <span><b id="lbl-amplitude">80</b> %</span>
+            </div>
+            <input type="range" id="input-amplitude" min="20" max="100" value="80" oninput="updateAmplitude(this.value)">
         </div>
     </div>
 
+    <!-- ИНТЕРАКТИВНА ЗОНА ЗА ТЕСТИРАЊЕ СО ПОВЛЕКУВАЊЕ (SWIPE) -->
     <div class="swipe-zone" id="pad-zone">
-        <div class="swipe-instruction" id="ins-text">Повлечи брзо со прст овде ➔</div>
+        <div class="swipe-instruction" id="ins-text">Повлечи со прст од лево на десно ➔</div>
     </div>
 
-        <div style="font-family: monospace; font-size: 12px; color: #8e8e93; text-align: center; width: 100%; max-width: 380px;">
-        СТАТУС: <b style="color: #34c759;">СЕНЗОРИТЕ СЕ ОДБЛОКИРАНИ</b><br>
-        <span style="font-size: 10px; color: #555; display: block; margin-top: 5px;">Ако слајдерот кочи, кликни директно на некоја од бројките.</span>
+    <div style="font-family: monospace; font-size: 11px; color: #555; text-align: center; width: 100%; max-width: 380px;">
+        РЕЖИМ: <b style="color: #34c759;">ОТКЛУЧЕНА ЦЕЛОСНА ХАПТИЧКА КОНТРОЛА</b><br>
+        <span style="display:block; margin-top:4px;">Секоја промена на вредностите веднаш ги реконструира прекинувачите долу.</span>
     </div>
 
     <script>
-        // Функција за промена на вредноста преку слајдерот
-        function changeBySlider(val) {
-            updateInterface(parseInt(val));
+        // Промена на вредностите на бројот на импулси преку слајдерот
+        function changeCountBySlider(val) {
+            updateHapticInterface(parseInt(val), null, null);
         }
 
-        // Функција за промена на вредноста преку копчињата со бројки
-        function changeByBtn(val) {
+        // Промена на вредностите на бројот на импулси преку брзите бројки
+        function changeCountByBtn(val) {
             document.getElementById('input-count').value = val;
-            updateInterface(val);
+            updateHapticInterface(val, null, null);
         }
 
-        // Централна логика за цртање на прекинувачите на екранот
-        function updateInterface(count) {
-            document.getElementById('lbl-count').innerText = count;
-            
-            // Ажурирај ги визуелните стилови на копчињата со бројки
+        // Промена на вредноста за микро-пауза
+        function updateInterval(val) {
+            updateHapticInterface(null, parseInt(val), null);
+        }
+
+        // Промена на вредноста за јачина
+        function updateAmplitude(val) {
+            updateHapticInterface(null, null, parseInt(val));
+        }
+
+        // ЦЕНТРАЛЕН РЕГЕНЕРАТОР НА ИНТЕРФЕЈСОТ
+        function updateHapticInterface(count, interval, amplitude) {
+            // Земи ги моменталните вредности ако некои се пратени како null
+            const currentCount = count !== null ? count : parseInt(document.getElementById('input-count').value);
+            const currentInterval = interval !== null ? interval : parseInt(document.getElementById('input-interval').value);
+            const currentAmplitude = amplitude !== null ? amplitude : parseInt(document.getElementById('input-amplitude').value);
+
+            // Ажурирање на текстуалните лабели на екранот
+            document.getElementById('lbl-count').innerText = currentCount;
+            document.getElementById('lbl-interval').innerText = currentInterval;
+            document.getElementById('lbl-amplitude').innerText = currentAmplitude;
+
+            document.getElementById('stat-pulses').innerText = currentCount + ' ИМПУЛСА';
+            document.getElementById('stat-ms').innerText = currentInterval + 'ms';
+            document.getElementById('stat-amp').innerText = currentAmplitude + '%';
+
+            // Ажурирање на активната класа кај бројките
             const btns = document.querySelectorAll('.selector-num');
             btns.forEach((btn, idx) => {
-                if (idx + 1 === count) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
+                if (idx + 1 === currentCount) { btn.classList.add('active'); } 
+                else { btn.classList.remove('active'); }
             });
 
+            // РЕКОНСТРУКЦИЈА НА ПРЕКИНУВАЧИТЕ ВО ЗОНАТА ЗА ТЕСТИРАЊЕ
             const padZone = document.getElementById('pad-zone');
-            padZone.innerHTML = `<div class="swipe-instruction" id="ins-text">Повлечи брзо со прст овде ➔</div>`;
+            padZone.innerHTML = `<div class="swipe-instruction" id="ins-text">Повлечи со прст од лево на десно ➔</div>`;
             
-            // Нацртај ги реалните нативни прекинувачи еден до друг
-            for (let i = 0; i < count; i++) {
+            // Динамички пресметуваме ширински простор врз основа на одбраниот интервал во ms
+            // Колку е поголем интервалот, толку прекинувачите се цртаат поодалечени еден од друг
+            for (let i = 0; i < currentCount; i++) {
                 const sw = document.createElement('input');
                 sw.setAttribute('type', 'checkbox');
                 sw.setAttribute('switch', ''); 
                 sw.className = 'real-switch';
+                
+                // Промена на визуелната маргина/растојание соодветно на слајдерот за милисекунди
+                const flexSpacing = (currentInterval / 120) * 20;
+                sw.style.marginLeft = flexSpacing + 'px';
+                sw.style.marginRight = flexSpacing + 'px';
                 
                 sw.addEventListener('touchstart', () => {
                     const txt = document.getElementById('ins-text');
@@ -114,8 +173,8 @@
             }
         }
 
-        // Почетно стартување на системот со дефолтна вредност 4
-        updateInterface(4);
+        // Првично стартување со дефолтни параметри (4 пулса, 35ms, 80% сила)
+        updateHapticInterface(4, 35, 80);
 
         document.addEventListener('gesturestart', e => e.preventDefault());
     </script>
