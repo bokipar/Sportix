@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Instagram PWA Ultimate</title>
     
+    <!-- Поврзување со манифестот -->
     <link rel="manifest" href="manifest.json">
     
+    <!-- iOS Специфични тагови за PWA да изгледа како оригинална апликација -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Instagram">
@@ -24,11 +26,12 @@
         body { 
             background-color: #000; 
             color: #fff; 
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             overflow-x: hidden; 
             padding-bottom: 70px; 
         }
         
+        /* Главна навигација горе (Header) */
         .header { 
             height: 44px; 
             display: flex; 
@@ -54,6 +57,7 @@
             font-size: 20px; 
         }
 
+        /* Лента за Stories (Приказни) */
         .stories-container { 
             display: flex; 
             gap: 15px; 
@@ -97,6 +101,7 @@
             background: #262626; 
         }
 
+        /* Пост Картички (Feed) */
         .post { 
             margin-bottom: 10px; 
             background: #000; 
@@ -130,6 +135,7 @@
             cursor: pointer; 
         }
         
+        /* Квадратна слика за постот */
         .post-img-container { 
             position: relative; 
             width: 100%; 
@@ -143,6 +149,7 @@
             object-fit: cover; 
         }
         
+        /* Скокачко срце при Double-Tap */
         .pop-heart { 
             position: absolute; 
             top: 50%; 
@@ -167,6 +174,7 @@
             100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
         }
 
+        /* Контролни копчиња (Икони под слика) */
         .post-actions { 
             padding: 12px 10px; 
             display: flex; 
@@ -192,6 +200,7 @@
             50% { transform: scale(1.3); } 
         }
         
+        /* Текстови и описи под постот */
         .post-info { 
             padding: 0 10px 10px 10px; 
             font-size: 13.5px; 
@@ -216,6 +225,7 @@
             cursor: pointer; 
         }
 
+        /* Фиксна долна лента со икони (Navigation Bar) */
         .nav-bar { 
             position: fixed; 
             bottom: 0; 
@@ -238,6 +248,7 @@
 </head>
 <body>
 
+    <!-- Навигација горе -->
     <div class="header">
         <h1>Instagram</h1>
         <div class="header-icons">
@@ -246,6 +257,7 @@
         </div>
     </div>
 
+    <!-- Stories (Приказни) -->
     <div class="stories-container">
         <div class="story-wrapper" onclick="viewStory(this)">
             <div class="story-ring"><img class="story-avatar" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150"></div>
@@ -265,6 +277,7 @@
         </div>
     </div>
 
+    <!-- ПОСТ 1 -->
     <div class="post">
         <div class="post-header">
             <div class="post-header-left">
@@ -328,46 +341,58 @@
     </div>
 
     <script>
-        let audioCtx = null;
         const likedStates = { 1: false, 2: false };
         const likeCounts = { 1: 1420, 2: 895 };
 
+        // НАТИВЕН ХАПТИЧКИ СИМУЛАТОР ЗА IOS (Работи целосно нечујно преку switch елемент)
         function triggerHaptic(type) {
-            try {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
+            // 1. Поддршка за Android
+            if (navigator.vibrate) {
+                if (type === 'light') navigator.vibrate(30);
+                if (type === 'medium') navigator.vibrate(60);
+                if (type === 'heavy') navigator.vibrate(100);
+                return;
+            }
 
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.type = 'sine';
+            // 2. Нативено тригерче на Taptic Engine за iOS
+            try {
+                const container = document.createElement('div');
+                const id = 'haptic-' + Math.random().toString(36).substring(2);
+                
+                container.innerHTML = `<input type="checkbox" id="${id}" switch><label for="${id}"></label>`;
+                container.setAttribute("style", "position:fixed; top:0; left:0; opacity:0; pointer-events:none; z-index:-1;");
+                document.body.appendChild(container);
+
+                const label = container.querySelector('label');
 
                 if (type === 'light') {
-                    osc.frequency.setValueAtTime(62, audioCtx.currentTime);
-                    gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
-                    osc.start(); osc.stop(audioCtx.currentTime + 0.04);
-                } else if (type === 'medium') {
-                    osc.frequency.setValueAtTime(70, audioCtx.currentTime);
-                    gain.gain.setValueAtTime(0.55, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
-                    osc.start(); osc.stop(audioCtx.currentTime + 0.06);
-                } else if (type === 'heavy') {
-                    osc.frequency.setValueAtTime(78, audioCtx.currentTime);
-                    gain.gain.setValueAtTime(0.9, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
-                    osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+                    label.click(); 
+                } 
+                else if (type === 'medium') {
+                    label.click();
+                    setTimeout(() => { label.click(); }, 30); 
+                } 
+                else if (type === 'heavy') {
+                    label.click();
+                    setTimeout(() => { label.click(); }, 20);
+                    setTimeout(() => { label.click(); }, 40);
                 }
-            } catch(e) { console.log(e); }
+
+                setTimeout(() => { container.remove(); }, 200);
+            } catch (e) {
+                console.log("Грешка при извршување на хаптика:", e);
+            }
         }
 
+        // Детекција на брз дупли клик (Double Tap за лајк)
         let lastTap = 0;
         function handleDoubleTap(container, id) {
             const now = Date.now();
             if (now - lastTap < 300) {
+                // Изврши го силниот нечуен хаптички удар
                 triggerHaptic('heavy');
                 
+                // Анимирај го големото срце на средина на сликата
                 const heart = container.querySelector('.pop-heart');
                 heart.classList.remove('animate-heart');
                 void heart.offsetWidth; 
@@ -380,6 +405,7 @@
             lastTap = now;
         }
 
+        // Систем за лајкување преку иконата (Срце под пост)
         function toggleLike(id) {
             likedStates[id] = !likedStates[id];
             const btn = document.getElementById(`heart-btn-${id}`);
@@ -399,11 +425,13 @@
             countEl.innerText = `${likeCounts[id].toLocaleString()} likes`;
         }
 
+        // Прегледување на приказна (Го гаси шарениот круг околу иконата)
         function viewStory(element) {
             triggerHaptic('medium');
             element.classList.add('viewed');
         }
 
+        // Блокирај ги фабричките iOS Safari гестикулации за дефолт-зум
         document.addEventListener('gesturestart', e => e.preventDefault());
     </script>
 </body>
