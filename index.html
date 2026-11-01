@@ -2,9 +2,25 @@
 <html lang="mk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instagram Like PWA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Instagram PWA</title>
+    
+    <!-- Поврзување со манифестот за да биде вистинска апликација -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- iOS Специфични тагови за PWA да изгледа совршено -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="InstaHaptic">
+    <link rel="apple-touch-icon" href="https://flaticon.com">
+
     <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
         body {
             background-color: #000;
             display: flex;
@@ -12,51 +28,80 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
         }
 
-        /* Контејнер за сликата (како на Инстаграм) */
+        /* Телефонски приказ / Инстаграм Пост Контејнер */
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            max-height: 850px;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Контејнер за сликата */
         .post-container {
             position: relative;
-            width: 380px;
-            height: 380px;
-            background: url('https://picsum.photos') center/cover;
-            border-radius: 12px;
+            width: 100%;
+            aspect-ratio: 1 / 1; /* Совршен квадрат како на Инстаграм */
+            background: url('https://unsplash.com') center/cover no-repeat;
             overflow: hidden;
             cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* Големото срце кое се појавува */
+        /* Големото срце за анимација */
         .insta-heart {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
-            font-size: 80px;
+            font-size: 100px;
             color: #fff;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            pointer-events: none; /* За да не смета на кликањето */
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
         }
 
-        /* Анимација за скокање на срцето */
+        /* Анимација за скокање на срцето (Инстаграм стил) */
         .animate-heart {
-            animation: heartPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: heartPop 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
         @keyframes heartPop {
             0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
             15% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.9; }
             30% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            75% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
             100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+
+        /* Текст инструкција долу */
+        .instruction {
+            color: #a8a8a8;
+            text-align: center;
+            font-size: 14px;
+            margin-top: 20px;
+            padding: 0 20px;
         }
     </style>
 </head>
 <body>
 
-    <div class="post-container" id="post">
-        <div class="insta-heart" id="heart">❤️</div>
+    <div class="app-container">
+        <!-- Постот кој се лајкува -->
+        <div class="post-container" id="post">
+            <div class="insta-heart" id="heart">❤️</div>
+        </div>
+        
+        <div class="instruction">
+            Направи <b>дупли клик</b> на сликата за лајк со хаптички фидбек.
+        </div>
     </div>
 
     <script>
@@ -64,9 +109,10 @@
         const heart = document.getElementById('heart');
         let audioCtx = null;
 
-        // Напреден iOS Хаптички фидбек (Преку Web Audio)
+        // Оптимизиран аудио-хаптички трик за Taptic Engine на iPhone
         function playInstaThump() {
             try {
+                // Иницијализација на аудио контекстот при првиот клик
                 if (!audioCtx) {
                     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 }
@@ -80,37 +126,42 @@
                 oscillator.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
 
-                // Фреквенција нагодена специјално за моќниот Taptic Engine на iPhone
+                // Остар, длабок бас (78Hz) кој прави звучникот да вибрира во раката
                 oscillator.type = 'sine';
                 oscillator.frequency.setValueAtTime(78, audioCtx.currentTime); 
 
-                // Силен, брз и остар удар (исто како на Инстаграм)
+                // Силен почеток со нагло паѓање до нула за 0.08 секунди (Инстаграм удар)
                 gainNode.gain.setValueAtTime(0.9, audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
 
                 oscillator.start(audioCtx.currentTime);
                 oscillator.stop(audioCtx.currentTime + 0.08);
             } catch (e) {
-                console.log(e);
+                console.error("Грешка при хаптика:", e);
             }
         }
 
-        // Детекција на Double Tap (Дупли Клик)
+        // Детекција на брз дупли клик (Double Tap)
         let lastTap = 0;
         post.addEventListener('click', function (e) {
             const now = new Date().getTime();
             const timesince = now - lastTap;
             
             if ((timesince < 300) && (timesince > 0)) {
-                // Изврши ја вибрацијата на твојот iPhone!
+                // 1. Активирај го дрмањето на iPhone
                 playInstaThump();
 
-                // Стартувај ја визуелната анимација
+                // 2. Пушти ја визуелната анимација на срцето
                 heart.classList.remove('animate-heart');
-                void heart.offsetWidth; // Тригер за рестарт на CSS анимација
+                void heart.offsetWidth; // Тригер за рестарт на CSS анимацијата
                 heart.classList.add('animate-heart');
             }
             lastTap = now;
+        });
+
+        // Спречи стандардно зумирање на iPhone при дупли клик
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault();
         });
     </script>
 </body>
