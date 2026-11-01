@@ -1,592 +1,218 @@
-
 <!DOCTYPE html>
 <html lang="mk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Haptic Lab Suite 4.0</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>iOS Haptic Sweep Engine Pro</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    user-select: none;
-    -webkit-user-select: none;
-}
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+        body { background-color: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 30px 15px; min-height: 100vh; }
+        
+        h1 { font-size: 22px; font-weight: 700; margin-bottom: 5px; text-align: center; letter-spacing: -0.5px; }
+        .subtitle { color: #8e8e93; font-size: 13px; margin-bottom: 20px; text-align: center; }
+        
+        /* ГРАФИЧКИ ОСЦИЛОСКОП */
+        .wave-panel { width: 100%; max-width: 380px; background: #121212; border-radius: 14px; padding: 15px; margin-bottom: 15px; border: 1px solid #1c1c1c; }
+        .wave-header { font-size: 11px; color: #8e8e93; font-weight: 600; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
+        .wave-canvas { width: 100%; height: 70px; display: flex; align-items: flex-end; justify-content: center; gap: 4px; background: #000; border-radius: 8px; overflow: hidden; padding: 10px; }
+        .wave-bar { width: 6px; height: 4px; background: #2c2c2e; border-radius: 2px; transition: height 0.05s ease, background-color 0.05s ease; }
 
-body {
-    background: #000;
-    color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 30px 15px;
-    min-height: 100vh;
-}
+        .control-panel { width: 100%; max-width: 380px; background: #1c1c1e; border-radius: 16px; padding: 18px; margin-bottom: 15px; border: 1px solid #2c2c2e; }
+        .panel-section { margin-bottom: 15px; }
+        .panel-section:last-child { margin-bottom: 0; }
+        
+        .label-group { display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 600; margin-bottom: 8px; color: #a8a8a8; }
+        .label-group span b { color: #34c759; }
+        
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #2c2c2e; border-radius: 3px; outline: none; touch-action: pan-x !important; pointer-events: auto !important; margin-bottom: 10px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: #34c759; border-radius: 50%; cursor: pointer; pointer-events: auto !important; }
 
-h1 {
-    font-size: 23px;
-    margin-bottom: 6px;
-    letter-spacing: -.6px;
-}
+        .selector-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; width: 100%; }
+        .selector-num { background: #2c2c2e; border: 1px solid #3a3a3c; border-radius: 8px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #fff; cursor: pointer; pointer-events: auto !important; }
+        .selector-num.active { background: #34c759; border-color: #34c759; color: #000; }
 
-.subtitle {
-    color: #8e8e93;
-    font-size: 12px;
-    margin-bottom: 24px;
-    text-align: center;
-}
-
-.wave-panel,
-.control-panel,
-.swipe-zone,
-.test-panel {
-    width: 100%;
-    max-width: 380px;
-    border-radius: 16px;
-    margin-bottom: 15px;
-}
-
-.wave-panel {
-    background: #121212;
-    padding: 16px;
-    border: 1px solid #282828;
-}
-
-.wave-header {
-    font-size: 11px;
-    color: #8e8e93;
-    font-weight: 700;
-    margin-bottom: 13px;
-    letter-spacing: .5px;
-}
-
-.wave-canvas {
-    height: 70px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    background: #000;
-    border-radius: 9px;
-    padding: 0 8px;
-    overflow: hidden;
-}
-
-.wave-bar {
-    flex: 1;
-    max-width: 6px;
-    height: 3px;
-    background: #303034;
-    border-radius: 5px;
-    transition: height .15s ease, background .15s ease;
-}
-
-.wave-bar.active {
-    background: #34c759;
-}
-
-.wave-bar.strong {
-    background: #ff453a;
-}
-
-.control-panel {
-    background: #1c1c1e;
-    padding: 19px;
-    border: 1px solid #333;
-}
-
-.panel-section {
-    margin-bottom: 23px;
-}
-
-.panel-section:last-child {
-    margin-bottom: 0;
-}
-
-.label-group {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    font-weight: 600;
-    color: #aaa;
-    margin-bottom: 12px;
-}
-
-.label-group b {
-    color: #34c759;
-}
-
-input[type=range] {
-    width: 100%;
-    height: 6px;
-    appearance: none;
-    -webkit-appearance: none;
-    background: #38383a;
-    border-radius: 5px;
-    outline: none;
-    touch-action: pan-x;
-    margin-bottom: 12px;
-}
-
-input[type=range]::-webkit-slider-thumb {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 23px;
-    height: 23px;
-    background: #34c759;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.selector-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 6px;
-}
-
-.selector-num {
-    background: #303034;
-    border: 1px solid #454549;
-    border-radius: 8px;
-    height: 34px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.selector-num.active {
-    background: #34c759;
-    border-color: #34c759;
-    color: #000;
-}
-
-.swipe-zone {
-    height: 105px;
-    background: #1c1c1e;
-    border: 2px dashed #34c759;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-    touch-action: pan-y;
-}
-
-.swipe-instruction {
-    color: #aaa;
-    font-size: 13px;
-    font-weight: 600;
-    pointer-events: none;
-    text-align: center;
-    padding: 10px;
-}
-
-.swipe-zone.running {
-    border-color: #ff453a;
-    background: #20201f;
-}
-
-.test-panel {
-    background: #1c1c1e;
-    padding: 15px;
-    border: 1px solid #333;
-}
-
-.test-button {
-    width: 100%;
-    padding: 16px;
-    border: none;
-    border-radius: 12px;
-    background: #34c759;
-    color: #000;
-    font-size: 15px;
-    font-weight: 800;
-    cursor: pointer;
-}
-
-.test-button:active {
-    transform: scale(.97);
-}
-
-.test-button:disabled {
-    opacity: .5;
-}
-
-.status {
-    text-align: center;
-    font-size: 11px;
-    color: #8e8e93;
-    margin-top: 12px;
-    line-height: 1.5;
-}
-
-.footer {
-    color: #666;
-    font-size: 10px;
-    text-align: center;
-    margin-top: 10px;
-    max-width: 350px;
-    line-height: 1.5;
-}
-</style>
+        /* НАПРЕДНА ЗОНА СО ПОДДРШКА ЗА ДИНАМИЧКА ТРАЕКТОРИЈА */
+        .swipe-zone { width: 100%; max-width: 380px; height: 90px; background: #1c1c1e; border: 2px dashed #34c759; border-radius: 16px; position: relative; overflow: hidden; margin-bottom: 15px; touch-action: none !important; }
+        .swipe-instruction { position: absolute; font-size: 13px; color: #8e8e93; font-weight: 600; pointer-events: none; text-align: center; width: 100%; top: 38%; z-index: 1; transition: opacity 0.2s; }
+        
+        /* Визуелни точки долу кои означуваат каде се наоѓаат имагинарните прекинувачи */
+        .virtual-switches-container { width: 100%; height: 100%; display: flex; justify-content: space-around; align-items: center; padding: 0 20px; }
+        .virtual-dot { width: 12px; height: 12px; background: #2c2c2e; border-radius: 50%; transition: all 0.1s ease; }
+        .virtual-dot.active { background: #34c759; box-shadow: 0 0 10px #34c759; transform: scale(1.3); }
+    </style>
 </head>
-
 <body>
 
-<h1>Haptic Lab Suite 4.0</h1>
-<div class="subtitle">
-    Advanced Haptic Control & Live Waveform
-</div>
+    <h1>Haptic Lab Suite v5.0</h1>
+    <div class="subtitle">Интерактивна дијагностика со динамичко мапирање на допир</div>
 
-<div class="wave-panel">
-    <div class="wave-header">LIVE HAPTIC WAVEFORM</div>
-    <div class="wave-canvas" id="canvas-container"></div>
-</div>
+    <div class="wave-panel">
+        <div class="wave-header">Осцилоскоп на импулси (Live Haptic Signal)</div>
+        <div class="wave-canvas" id="canvas-container"></div>
+    </div>
 
-<div class="control-panel">
-
-    <div class="panel-section">
-        <div class="label-group">
-            <span>Број на импулси</span>
-            <span><b id="lbl-count">4</b> вибрации</span>
+        <div class="control-panel">
+        <div class="panel-section">
+            <div class="label-group">
+                <span>Број на импулси (Pulses)</span>
+                <span><b id="lbl-count">4</b> вибрации</span>
+            </div>
+            <input type="range" id="input-count" min="1" max="6" value="4" oninput="changeCountBySlider(this.value)">
+            <div class="selector-grid">
+                <div class="selector-num" onclick="changeCountByBtn(1)">1</div>
+                <div class="selector-num" onclick="changeCountByBtn(2)">2</div>
+                <div class="selector-num" onclick="changeCountByBtn(3)">3</div>
+                <div class="selector-num selector-num active" onclick="changeCountByBtn(4)">4</div>
+                <div class="selector-num" onclick="changeCountByBtn(5)">5</div>
+                <div class="selector-num" onclick="changeCountByBtn(6)">6</div>
+            </div>
         </div>
 
-        <input type="range" id="input-count"
-               min="1" max="6" value="4">
+        <div class="panel-section">
+            <div class="label-group">
+                <span>Интервал на прекини</span>
+                <span><b id="lbl-interval">35</b> ms</span>
+            </div>
+            <input type="range" id="input-interval" min="15" max="120" value="35" oninput="updateInterval(this.value)">
+        </div>
 
-        <div class="selector-grid">
-            <div class="selector-num" data-count="1">1</div>
-            <div class="selector-num" data-count="2">2</div>
-            <div class="selector-num" data-count="3">3</div>
-            <div class="selector-num active" data-count="4">4</div>
-            <div class="selector-num" data-count="5">5</div>
-            <div class="selector-num" data-count="6">6</div>
+        <div class="panel-section">
+            <div class="label-group">
+                <span>Сила на удар (Amplitude)</span>
+                <span><b id="lbl-amplitude">80</b> %</span>
+            </div>
+            <input type="range" id="input-amplitude" min="20" max="100" value="80" oninput="updateAmplitude(this.value)">
         </div>
     </div>
 
-    <div class="panel-section">
-        <div class="label-group">
-            <span>Интервал помеѓу импулси</span>
-            <span><b id="lbl-interval">35</b> ms</span>
-        </div>
-
-        <input type="range" id="input-interval"
-               min="15" max="120" value="35">
+    <!-- ТЕСТ ЗОНА СО ЕДИНСТВЕНА ТРАЕКТОРИЈА НА ДЕТЕКЦИЈА -->
+    <div class="swipe-zone" id="pad-zone">
+        <div class="swipe-instruction" id="ins-text">Повлечи со прст брзо овде ➔</div>
+        <div class="virtual-switches-container" id="dots-container"></div>
     </div>
 
-    <div class="panel-section">
-        <div class="label-group">
-            <span>Сила на импулс</span>
-            <span><b id="lbl-amplitude">80</b> %</span>
-        </div>
-
-        <input type="range" id="input-amplitude"
-               min="20" max="100" value="80">
-    </div>
-
-</div>
-
-<div class="swipe-zone" id="pad-zone">
-    <div class="swipe-instruction" id="ins-text">
-        ПОВЛЕЧИ СО ПРСТ ОД ЛЕВО НА ДЕСНО ➜
-    </div>
-</div>
-
-<div class="test-panel">
-    <button class="test-button" id="test-button">
-        ▶ ТЕСТИРАЈ ВИБРАЦИЈА
-    </button>
-
-    <div class="status" id="status">
-        Системот е подготвен
-    </div>
-</div>
-
-<div class="footer">
-    Haptic Lab Suite 4.0 · Software Waveform Simulator
-</div>
-
-<script>
-
-// SETTINGS
-const countInput = document.getElementById("input-count");
-const intervalInput = document.getElementById("input-interval");
-const amplitudeInput = document.getElementById("input-amplitude");
-
-const countLabel = document.getElementById("lbl-count");
-const intervalLabel = document.getElementById("lbl-interval");
-const amplitudeLabel = document.getElementById("lbl-amplitude");
-
-const canvas = document.getElementById("canvas-container");
-const pad = document.getElementById("pad-zone");
-const status = document.getElementById("status");
-const testButton = document.getElementById("test-button");
-
-let bars = [];
-let animationFrame = null;
-let isRunning = false;
-
-// CREATE WAVEFORM
-for (let i = 0; i < 35; i++) {
-    const bar = document.createElement("div");
-    bar.className = "wave-bar";
-    canvas.appendChild(bar);
-    bars.push(bar);
-}
-
-// GET SETTINGS
-function getSettings() {
-    return {
-        count: Number(countInput.value),
-        interval: Number(intervalInput.value),
-        amplitude: Number(amplitudeInput.value)
-    };
-}
-
-// UPDATE INTERFACE
-function updateInterface() {
-    const settings = getSettings();
-
-    countLabel.textContent = settings.count;
-    intervalLabel.textContent = settings.interval;
-    amplitudeLabel.textContent = settings.amplitude;
-
-    document.querySelectorAll(".selector-num").forEach(btn => {
-        btn.classList.toggle(
-            "active",
-            Number(btn.dataset.count) === settings.count
-        );
-    });
-
-    drawWaveform();
-}
-
-// DRAW WAVEFORM
-function drawWaveform() {
-    const { count, interval, amplitude } = getSettings();
-
-    bars.forEach(bar => {
-        bar.style.height = "3px";
-        bar.className = "wave-bar";
-    });
-
-    const maxSpacing = 29;
-    const spacing = Math.max(
-        1,
-        Math.round((interval / 120) * maxSpacing)
-    );
-
-    const start = Math.max(
-        1,
-        Math.floor((35 - (count - 1) * spacing) / 2)
-    );
-
-    for (let i = 0; i < count; i++) {
-        const position = start + i * spacing;
-
-        if (position < bars.length) {
-            const bar = bars[position];
-            bar.style.height =
-                (5 + amplitude * 0.5) + "px";
-
-            bar.classList.add(
-                amplitude > 75 ? "strong" : "active"
-            );
+    <script>
+        // Иницијализација на 35 барови за осцилоскопот
+        const canvas = document.getElementById('canvas-container');
+        for (let i = 0; i < 35; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'wave-bar';
+            canvas.appendChild(bar);
         }
-    }
-}
+        const waveBars = document.querySelectorAll('.wave-bar');
 
-// COUNT BUTTONS
-document.querySelectorAll(".selector-num").forEach(btn => {
-    btn.addEventListener("click", () => {
-        countInput.value = btn.dataset.count;
-        updateInterface();
-    });
-});
+        function changeCountBySlider(val) { updateHapticInterface(parseInt(val), null, null); }
+        function changeCountByBtn(val) { document.getElementById('input-count').value = val; updateHapticInterface(val, null, null); }
+        function updateInterval(val) { updateHapticInterface(null, parseInt(val), null); }
+        function updateAmplitude(val) { updateHapticInterface(null, null, parseInt(val)); }
 
-// SLIDERS
-countInput.addEventListener("input", updateInterface);
-intervalInput.addEventListener("input", updateInterface);
-amplitudeInput.addEventListener("input", updateInterface);
+        let activeSwitchesCount = 4;
+        let lastTriggeredIndex = -1;
 
-// ANIMATE WAVEFORM
-function animateWaveform() {
-    if (!isRunning) return;
+        function updateHapticInterface(count, interval, amplitude) {
+            const currentCount = count !== null ? count : parseInt(document.getElementById('input-count').value);
+            const currentInterval = interval !== null ? interval : parseInt(document.getElementById('input-interval').value);
+            const currentAmplitude = amplitude !== null ? amplitude : parseInt(document.getElementById('input-amplitude').value);
 
-    const { count, interval, amplitude } = getSettings();
+            activeSwitchesCount = currentCount;
+            document.getElementById('lbl-count').innerText = currentCount;
+            document.getElementById('lbl-interval').innerText = currentInterval;
+            document.getElementById('lbl-amplitude').innerText = currentAmplitude;
 
-    const duration = Math.max(
-        150,
-        count * (interval + 20)
-    );
+            const btns = document.querySelectorAll('.selector-num');
+            btns.forEach((btn, idx) => {
+                if (idx + 1 === currentCount) { btn.classList.add('active'); } 
+                else { btn.classList.remove('active'); }
+            });
 
-    const startTime = performance.now();
+            waveBars.forEach(bar => { bar.style.height = '4px'; bar.style.backgroundColor = '#1c1c1e'; });
 
-    function frame(now) {
-        if (!isRunning) return;
+            // Цртање на визуелните индикатори долу
+            const dotsContainer = document.getElementById('dots-container');
+            dotsContainer.innerHTML = '';
+            for (let i = 0; i < currentCount; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'virtual-dot';
+                dotsContainer.appendChild(dot);
+            }
+        }
 
-        const elapsed = now - startTime;
-        const progress = elapsed % duration;
-
-        const pulseIndex = Math.floor(
-            progress / (interval + 20)
-        );
-
-        const active = pulseIndex < count;
-
-        bars.forEach((bar, index) => {
-            const distance = Math.abs(
-                index - (5 + pulseIndex * 4)
-            );
-
-            if (active && distance < 3) {
-                const height = Math.max(
-                    3,
-                    (amplitude / 100) * 55 *
-                    (1 - distance * 0.3)
-                );
-
-                bar.style.height = height + "px";
-                bar.className =
-                    amplitude > 75
-                    ? "wave-bar strong"
-                    : "wave-bar active";
-            } else {
-                bar.style.height = "3px";
-                bar.className = "wave-bar";
+        // КЛУЧОТ НА ПОПРАВКАТА: Прецизно следење на `TouchX` координатите во движење
+        const padZone = document.getElementById('pad-zone');
+        
+        padZone.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = padZone.getBoundingClientRect();
+            
+            // Пресметуваме точно каде се наоѓа прстот во реално време од 0 до 1
+            const relativeX = (touch.clientX - rect.left) / rect.width;
+            
+            if (relativeX >= 0 && relativeX <= 1) {
+                document.getElementById('ins-text').style.opacity = '0';
+                
+                // Мапираме до кој виртуелен индекс стигнал прстот
+                const currentZoneIndex = Math.floor(relativeX * activeSwitchesCount);
+                
+                // Изврши ја акцијата само ако прстот влегол во НОВА зона
+                if (currentZoneIndex !== lastTriggeredIndex && currentZoneIndex >= 0 && currentZoneIndex < activeSwitchesCount) {
+                    lastTriggeredIndex = currentZoneIndex;
+                    triggerDynamicPulse(currentZoneIndex);
+                }
             }
         });
 
-        animationFrame = requestAnimationFrame(frame);
-    }
+        padZone.addEventListener('touchend', () => {
+            lastTriggeredIndex = -1; // Ресетирање кога прстот ќе се крене
+            setTimeout(() => { document.getElementById('ins-text').style.opacity = '1'; }, 500);
+        });
 
-    animationFrame = requestAnimationFrame(frame);
-}
+        // МОМЕНТАЛЕН ПРЕНΟΣ НА СИГНАЛ И ВИЗУЕЛИЗАЦИЈА
+        function triggerDynamicPulse(index) {
+            const currentAmplitude = parseInt(document.getElementById('input-amplitude').value);
+            const currentInterval = parseInt(document.getElementById('input-interval').value);
+            
+            // Активирање на визуелната точка долу
+            const dots = document.querySelectorAll('.virtual-dot');
+            if (dots[index]) {
+                dots[index].classList.add('active');
+                setTimeout(() => { dots[index].classList.remove('active'); }, 200);
+            }
 
-// STOP ANIMATION
-function stopAnimation() {
-    isRunning = false;
+            // 1. ПРЕДИЗВИКАЈ НАУЧЕН ХАПТИЧКИ УДАР
+            try {
+                const holder = document.createElement('div');
+                const uid = 'sweep-gate-' + Math.random().toString(36).substring(2);
+                holder.innerHTML = `<input type="checkbox" id="${uid}" switch><label for="${uid}"></label>`;
+                holder.setAttribute("style", "position:fixed; opacity:0; pointer-events:none;");
+                document.body.appendChild(holder);
+                holder.querySelector('label').click();
+                setTimeout(() => { holder.remove(); }, 100);
+            } catch (err) {}
 
-    if (animationFrame !== null) {
-        cancelAnimationFrame(animationFrame);
-        animationFrame = null;
-    }
-
-    drawWaveform();
-    pad.classList.remove("running");
-}
-
-// RUN TEST
-function runTest() {
-    if (isRunning) return;
-
-    const { count, interval, amplitude } = getSettings();
-
-    isRunning = true;
-    pad.classList.add("running");
-
-    status.textContent =
-        "Тестирање: " + count +
-        " импулси · " + interval +
-        " ms · " + amplitude + "%";
-
-    testButton.disabled = true;
-
-    animateWaveform();
-
-    // Vibration API support check
-    if ("vibrate" in navigator) {
-
-        // Vibration duration is approximate.
-        // The browser does not expose amplitude control.
-        const pulseDuration = Math.max(
-            10,
-            Math.round(10 + amplitude * 0.2)
-        );
-
-        const pattern = [];
-
-        for (let i = 0; i < count; i++) {
-            pattern.push(pulseDuration);
-
-            if (i < count - 1) {
-                pattern.push(interval);
+            // 2. ИНСТАНТНО СКОКАЊЕ НА БРАНОТ ГОРЕ
+            const step = Math.max(1, Math.round(currentInterval / 10));
+            const targetBarIndex = Math.min(waveBars.length - 1, 4 + (index * step));
+            const targetBar = waveBars[targetBarIndex];
+            
+            if (targetBar) {
+                const activeHeight = (currentAmplitude / 100) * 55 + 5;
+                targetBar.style.height = activeHeight + 'px';
+                targetBar.style.backgroundColor = currentAmplitude > 75 ? '#ff3b30' : '#34c759';
+                
+                setTimeout(() => {
+                    targetBar.style.height = '4px';
+                    targetBar.style.backgroundColor = '#1c1c1e';
+                }, 250);
             }
         }
 
-        try {
-            navigator.vibrate(pattern);
-        } catch (error) {
-            console.log("Vibration unavailable", error);
-        }
-
-    } else {
-        status.textContent =
-            "Визуелна симулација: овој прелистувач не поддржува Vibration API.";
-    }
-
-    const totalDuration =
-        count * (interval + 100) + 500;
-
-    setTimeout(() => {
-        stopAnimation();
-
-        testButton.disabled = false;
-
-        if (!("vibrate" in navigator)) {
-            status.textContent =
-                "Симулацијата заврши. Нема поддршка за физичка вибрација.";
-        } else {
-            status.textContent =
-                "Тестирањето заврши · Системот е подготвен";
-        }
-    }, totalDuration);
-}
-
-// TEST BUTTON
-testButton.addEventListener("click", runTest);
-
-// SWIPE DETECTION
-let startX = 0;
-let startY = 0;
-
-pad.addEventListener("pointerdown", event => {
-    startX = event.clientX;
-    startY = event.clientY;
-
-    const instruction = document.getElementById("ins-text");
-
-    if (instruction) {
-        instruction.style.opacity = "0";
-    }
-});
-
-pad.addEventListener("pointerup", event => {
-    const diffX = event.clientX - startX;
-    const diffY = event.clientY - startY;
-
-    if (diffX > 50 && Math.abs(diffX) > Math.abs(diffY)) {
-        runTest();
-    }
-
-    const instruction = document.getElementById("ins-text");
-
-    if (instruction) {
-        instruction.style.opacity = "1";
-    }
-});
-
-// INITIALIZATION
-updateInterface();
-
-</script>
+        updateHapticInterface(4, 35, 80);
+        document.addEventListener('gesturestart', e => e.preventDefault());
+    </script>
 </body>
 </html>
