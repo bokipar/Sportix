@@ -3,167 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Instagram Advanced Haptics</title>
+    <title>iOS Haptic Analyzer</title>
     
-    <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Instagram">
-    <link rel="apple-touch-icon" href="https://flaticon.com">
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
-        body { background-color: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow-x: hidden; padding-bottom: 70px; }
-        .header { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid #121212; position: sticky; top: 0; background: #000; z-index: 100; padding-top: env(safe-area-inset-top); }
-        .header h1 { font-family: 'Georgia', serif; font-style: italic; font-size: 24px; letter-spacing: -1px; }
+        body { background-color: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 30px 20px; min-height: 100vh; }
         
-        .carousel-wrapper { position: relative; width: 100%; aspect-ratio: 1/1; }
-        .carousel-scroller { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
-        .carousel-scroller::-webkit-scrollbar { display: none; }
-        .slide { position: relative; min-width: 100%; height: 100%; scroll-snap-align: start; overflow: hidden; background: #050505; }
-        .post-img { width: 100%; height: 100%; object-fit: cover; }
+        h1 { font-size: 24px; font-weight: 700; margin-bottom: 5px; }
+        .subtitle { color: #8e8e93; font-size: 13px; margin-bottom: 25px; text-align: center; }
         
-        /* Главниот невидлив тригер кој ја пресретнува и мери брзината на прстот */
-        .haptic-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 5; cursor: pointer; }
+        /* ИНСТРУМЕНТ ЗА МЕРЕЊЕ (DIAGNOSTIC METER) */
+        .meter-panel { width: 100%; max-width: 360px; background: #1c1c1e; border-radius: 16px; padding: 20px; margin-bottom: 25px; border: 1px solid #2c2c2e; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .meter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .status-dot { width: 8px; height: 8px; background: #34c759; border-radius: 50%; box-shadow: 0 0 8px #34c759; }
+        .live-display { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 15px; }
+        .metric-box { background: #2c2c2e; padding: 10px; border-radius: 10px; flex: 1; text-align: center; }
+        .metric-val { font-size: 18px; font-weight: 700; color: #0095f6; font-family: monospace; }
+        .metric-lbl { font-size: 10px; color: #8e8e93; text-transform: uppercase; margin-top: 3px; }
         
-        .post { margin-bottom: 15px; background: #000; }
-        .post-header { display: flex; align-items: center; padding: 10px; }
-        .avatar { width: 32px; height: 32px; border-radius: 50%; margin-right: 10px; object-fit: cover; border: 1px solid #1c1c1c; }
-        .username { font-weight: 600; font-size: 13px; }
-        .post-actions { padding: 12px 10px 4px 10px; display: flex; gap: 18px; font-size: 22px; }
-        .action-btn { position: relative; display: inline-block; cursor: pointer; }
-        
-        /* Сокриен switch зад секое навигациско копче */
-        .btn-switch { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 2; cursor: pointer; }
-        
-        .post-info { padding: 8px 10px 10px 10px; font-size: 13.5px; }
-        .likes-count { font-weight: 600; margin-bottom: 6px; }
-        .caption span { font-weight: 600; margin-right: 6px; }
-        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; height: 49px; background: #000; border-top: 1px solid #121212; display: flex; justify-content: space-around; align-items: center; font-size: 24px; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
-        
-        .pop-heart { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 90px; color: #fff; opacity: 0; pointer-events: none; z-index: 10; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.5)); }
-        .animate-heart { animation: heartPop 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes heartPop {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            15% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.9; }
-            30% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            75% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-        }
+        /* Графички бран за визуелизација на јачината */
+        .wave-container { height: 40px; display: flex; align-items: center; justify-content: center; gap: 3px; background: #000; border-radius: 8px; overflow: hidden; padding: 0 10px; }
+        .wave-bar { width: 4px; height: 5px; background: #0095f6; border-radius: 2px; transition: height 0.1s ease; }
+
+        /* КОПЧИЊА ЗА ВИБРАЦИЈА */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 360px; }
+        .btn { position: relative; height: 75px; background: #1c1c1e; border-radius: 14px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border: 1px solid #2c2c2e; transition: transform 0.05s; }
+        .btn:active { transform: scale(0.97); background: #2c2c2e; }
+        .btn-title { font-size: 15px; font-weight: 600; }
+        .btn-desc { font-size: 11px; color: #8e8e93; margin-top: 2px; }
+        .full-width { grid-column: span 2; }
+        .haptic-trigger { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Instagram</h1>
-    </div>
+    <h1>Haptic Analyzer</h1>
+    <div class="subtitle">Инструмент за мерење и дијагностика на Taptic Engine</div>
 
-    <div class="post">
-        <div class="post-header">
-            <img class="avatar" src="https://unsplash.com">
-            <div class="username">alex_travel</div>
-        </div>
-        <div class="carousel-wrapper">
-            <div class="carousel-scroller" id="scroller">
-                <div class="slide">
-                    <img class="post-img" src="https://unsplash.com">
-                    <input type="checkbox" switch class="haptic-overlay">
-                </div>
-            </div>
-            <div class="pop-heart">❤️</div>
-        </div>
-        <div class="post-actions">
-            <div class="action-btn" style="font-size: 22px;">
-                <span id="heart-btn-1">🤍</span>
-                <input type="checkbox" switch class="btn-switch" id="manual-like-trigger">
-            </div>
-            <div class="action-btn">
-                <span>💬</span>
-                <input type="checkbox" switch class="btn-switch" id="comment-trigger">
+    <!-- ПАНЕЛ СО ИНСТРУМЕНТИ -->
+    <div class="meter-panel">
+        <div class="meter-header">
+            <span style="font-size: 13px; font-weight: 600; color: #8e8e93;">ДИЈАГНОСТИКА ВО ЖИВО</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 11px; color: #34c759;">СЕНЗОР АКТИВЕН</span>
+                <div class="status-dot"></div>
             </div>
         </div>
-        <div class="post-info">
-            <div class="likes-count" id="likes-1">1,420 likes</div>
-            <div class="caption"><span>alex_travel</span> Пробиен лимитот! Направен е нов систем на темпиран пренос на хаптика. ⚡🔥</div>
+        <div class="live-display">
+            <div class="metric-box">
+                <div class="metric-val" id="val-latency">0.0ms</div>
+                <div class="metric-lbl">Доцнење (Latency)</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-val" id="val-power">0%</div>
+                <div class="metric-lbl">Јачина (Power)</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-val" id="val-pulses">0</div>
+                <div class="metric-lbl">Импулси (Puls)</div>
+            </div>
         </div>
+        <!-- График на бранот -->
+        <div class="wave-container" id="wave-box"></div>
     </div>
-
-    <!-- ДОЛНА ЛЕНТА: Специфично темпирани табови за различен фидбек -->
-    <div class="nav-bar">
-        <div class="action-btn">🏠<input type="checkbox" switch class="btn-switch" onclick="executeHapticSystem('light')"></div>
-        <div class="action-container action-btn">🔍<input type="checkbox" switch class="btn-switch" onclick="executeHapticSystem('medium')"></div>
-        <div class="action-container action-btn">➕<input type="checkbox" switch class="btn-switch" onclick="executeHapticSystem('heavy')"></div>
+    <!-- МРЕЖА СО КОПЧИЊА -->
+    <div class="grid">
+        <div class="btn">
+            <span class="btn-title" style="color: #30a2ff;">Light Tap</span>
+            <span class="btn-desc">Микро импулс</span>
+            <input type="checkbox" switch class="haptic-trigger" onclick="runHapticDiagnostic('light')">
+        </div>
+        <div class="btn">
+            <span class="btn-title" style="color: #30a2ff;">Medium Tap</span>
+            <span class="btn-desc">Стандарден клик</span>
+            <input type="checkbox" switch class="haptic-trigger" onclick="runHapticDiagnostic('medium')">
+        </div>
+        <div class="btn full-width">
+            <span class="btn-title" style="color: #ff3040;">Instagram Like</span>
+            <span class="btn-desc">Густ троен бран (.heavy)</span>
+            <input type="checkbox" switch class="haptic-trigger" onclick="runHapticDiagnostic('heavy')">
+        </div>
+        <div class="btn full-width" style="border-left: 4px solid #ff9500;">
+            <span class="btn-title" style="color: #ff9500;">Rigid Shock</span>
+            <span class="btn-desc">Остар и крут херцијален бран</span>
+            <input type="checkbox" switch class="haptic-trigger" onclick="runHapticDiagnostic('rigid')">
+        </div>
+        <div class="btn full-width" style="border-left: 4px solid #ff3b30;">
+            <span class="btn-title" style="color: #ff3b30;">System Error</span>
+            <span class="btn-desc">Сложема серија од 4 брзи прекини</span>
+            <input type="checkbox" switch class="haptic-trigger" onclick="runHapticDiagnostic('error')">
+        </div>
     </div>
 
     <script>
-        let likedStates = false;
-        let likeCounts = 1420;
-        
-        const scroller = document.getElementById('scroller');
-        const heartPop = document.querySelector('.pop-heart');
-        const heartBtn = document.getElementById('heart-btn-1');
-        const likesText = document.getElementById('likes-1');
-        const manualLikeTrigger = document.getElementById('manual-like-trigger');
-        const commentTrigger = document.getElementById('comment-trigger');
+        // Генерирање на визуелни барови за графикот во реално време
+        const waveBox = document.getElementById('wave-box');
+        for (let i = 0; i < 30; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'wave-bar';
+            waveBox.appendChild(bar);
+        }
+        const waveBars = document.querySelectorAll('.wave-bar');
 
-        // КЛУЧОТ НА ХАКОТ: Прецизна софтверска модулација во милисекунди
-        function executeHapticSystem(mode) {
-            try {
-                const triggerBlock = document.createElement('div');
-                const uniqueId = 'haptix-' + Math.random().toString(36).substring(2);
-                triggerBlock.innerHTML = `<input type="checkbox" id="${uniqueId}" switch><label for="${uniqueId}"></label>`;
-                triggerBlock.setAttribute("style", "position:fixed; opacity:0; pointer-events:none; top:0; left:0;");
-                document.body.appendChild(triggerBlock);
-                const targetNode = triggerBlock.querySelector('label');
-
-                if (mode === 'light') {
-                    // Само еден брз, нативен и нежен системски импулс
-                    targetNode.click();
-                } 
-                else if (mode === 'medium') {
-                    // Среден: Два одалечени импулси со точно 35ms доцнење за да не се спојат
-                    targetNode.click();
-                    setTimeout(() => { targetNode.click(); }, 35);
-                } 
-                else if (mode === 'heavy') {
-                    // Силно (Инстаграм Лајк): Три последователни микро-шокови на 22ms и 45ms.
-                    // Ова го форсира куќиштето да направи брз троен однесувачки бран.
-                    targetNode.click();
-                    setTimeout(() => { targetNode.click(); }, 22);
-                    setTimeout(() => { targetNode.click(); }, 45);
-                }
-
-                setTimeout(() => { triggerBlock.remove(); }, 200);
-            } catch (e) { console.log(e); }
+        // Универзален извршител на хаптички импулси
+        function executePulse(msDelay) {
+            const block = document.createElement('div');
+            const id = 'h-' + Math.random().toString(36).substring(2);
+            block.innerHTML = `<input type="checkbox" id="${id}" switch><label for="${id}"></label>`;
+            block.setAttribute("style", "position:fixed; opacity:0; pointer-events:none;");
+            document.body.appendChild(block);
+            const label = block.querySelector('label');
+            
+            setTimeout(() => { label.click(); }, msDelay);
+            setTimeout(() => { block.remove(); }, msDelay + 100);
         }
 
-        // Поврзување на иконите со соодветниот нов модулиран систем
-        manualLikeTrigger.addEventListener('click', () => { executeHapticSystem('medium'); toggleLikeLogic(); });
-        commentTrigger.addEventListener('click', () => { executeHapticSystem('light'); });
+        // НАПРЕДЕН СИСТЕМ ЗА СИМУЛАЦИЈА И МЕРЕЊЕ
+        function runHapticDiagnostic(mode) {
+            // Мерење на перформансите и латенијата на прелистувачот со висока прецизност
+            const startTime = performance.now();
+            let pulseCount = 0;
+            let calculatedIntensity = 0;
 
-        // Double-Tap лајк систем на сликата со Heavy модулирана вибрација
-        let lastTap = 0;
-        document.querySelectorAll('.haptic-overlay').forEach(overlay => {
-            overlay.addEventListener('click', () => {
-                const now = Date.now();
-                if (now - lastTap < 300) {
-                    heartPop.classList.remove('animate-heart');
-                    void heartPop.offsetWidth;
-                    heartPop.classList.add('animate-heart');
+            if (mode === 'light') {
+                pulseCount = 1;
+                calculatedIntensity = 30;
+            } 
+            else if (mode === 'medium') {
+                pulseCount = 2;
+                calculatedIntensity = 55;
+                executePulse(35); // Втор бран по 35 милисекунди
+            } 
+            else if (mode === 'heavy') {
+                pulseCount = 3;
+                calculatedIntensity = 90;
+                executePulse(22);
+                executePulse(45);
+            } 
+            else if (mode === 'rigid') {
+                pulseCount = 2;
+                calculatedIntensity = 75;
+                executePulse(15); // Многу брз и остар надоврзан одзив
+            }
+            else if (mode === 'error') {
+                pulseCount = 4;
+                calculatedIntensity = 100;
+                executePulse(25);
+                executePulse(50);
+                executePulse(75);
+            }
 
-                    executeHapticSystem('heavy'); // Форсирај го најсилниот троен хаптички бран на iPhone
+            // Веднаш по repaint на екранот ја пресметуваме реалната брзина на одзив
+            requestAnimationFrame(() => {
+                const endTime = performance.now();
+                const latency = endTime - startTime;
 
-                    if (!likedStates) { toggleLikeLogic(); }
-                }
-                lastTap = now;
+                // Ажурирање на бројките на дисплејот
+                document.getElementById('val-latency').innerText = latency.toFixed(1) + 'ms';
+                document.getElementById('val-power').innerText = calculatedIntensity + '%';
+                document.getElementById('val-pulses').innerText = pulseCount;
+
+                // Анимирање на графичкиот бран соодветно на јачината
+                waveBars.forEach(bar => {
+                    const randomHeight = Math.random() * (calculatedIntensity / 2.5) + 5;
+                    bar.style.height = randomHeight + 'px';
+                    // Смена на бојата за критични силни вибрации
+                    if (calculatedIntensity > 75) {
+                        bar.style.background = '#ff3b30';
+                    } else {
+                        bar.style.background = '#0095f6';
+                    }
+                    
+                    // Враќање во нормала по кратко време
+                    setTimeout(() => { bar.style.height = '5px'; bar.style.background = '#0095f6'; }, 300);
+                });
             });
-        });
-
-        function toggleLikeLogic() {
-            likedStates = !likedStates;
-            if (likedStates) { heartBtn.innerText = '❤️'; likeCounts++; } 
-            else { heartBtn.innerText = '🤍'; likeCounts--; }
-            likesText.innerText = `${likeCounts.toLocaleString()} likes`;
         }
 
         document.addEventListener('gesturestart', e => e.preventDefault());
