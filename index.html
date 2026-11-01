@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>iOS Core Haptics Lab - Custom Designer</title>
+    <title>Pure Taptic Engine Studio</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -32,13 +32,13 @@
         }
         .subtitle {
             color: #8e8e93;
-            font-size: 13px;
+            font-size: 12px;
             margin-bottom: 20px;
             text-align: center;
         }
         .panel {
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             background: #1c1c1e;
             border-radius: 16px;
             padding: 16px;
@@ -51,54 +51,18 @@
             font-weight: 600;
             text-transform: uppercase;
             margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
         }
         #waveCanvas {
             width: 100%;
-            height: 100px;
+            height: 120px;
             background: #000;
             border-radius: 8px;
             border: 1px solid #2c2c2e;
-            margin-bottom: 8px;
-        }
-        .control-group {
-            margin-bottom: 14px;
-        }
-        .control-group:last-child {
-            margin-bottom: 0;
-        }
-        .control-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            color: #aeaeb2;
-            margin-bottom: 6px;
-        }
-        .control-label span {
-            font-family: monospace;
-            color: #30a2ff;
-            font-weight: bold;
-        }
-        input[type="range"] {
-            width: 100%;
-            -webkit-appearance: none;
-            background: #2c2c2e;
-            height: 6px;
-            border-radius: 3px;
-            outline: none;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #30a2ff;
-            cursor: pointer;
+            margin-bottom: 12px;
         }
         .trigger-btn {
             width: 100%;
-            height: 60px;
+            height: 55px;
             background: #30a2ff;
             border: none;
             border-radius: 12px;
@@ -107,112 +71,182 @@
             font-weight: 600;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(48, 162, 255, 0.3);
-            transition: transform 0.1s;
-        }
-        .trigger-btn:active {
-            transform: scale(0.97);
-            background: #007aff;
-        }
-        .metrics {
-            display: flex;
-            justify-content: space-between;
-            gap: 8px;
-            margin-top: 10px;
-        }
-        .metric-card {
-            background: #2c2c2e;
-            padding: 8px;
-            border-radius: 8px;
-            flex: 1;
-            text-align: center;
-            font-size: 10px;
-            color: #8e8e93;
             text-transform: uppercase;
         }
-        .metric-card div {
-            font-size: 14px;
+        .trigger-btn:active {
+            background: #007aff;
+        }
+        .global-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .control-group {
+            background: #2c2c2e;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .control-label {
+            font-size: 11px;
+            color: #aeaeb2;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .control-label span {
+            color: #30a2ff;
             font-weight: bold;
-            color: #34c759;
             font-family: monospace;
-            margin-top: 2px;
+        }
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            background: #48484a;
+            height: 4px;
+            border-radius: 2px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #30a2ff;
+            cursor: pointer;
+        }
+        .pulse-list-container {
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .pulse-row {
+            display: flex;
+            align-items: center;
+            background: #2c2c2e;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            gap: 12px;
+        }
+        .pulse-index {
+            font-size: 12px;
+            font-weight: bold;
+            color: #8e8e93;
+            min-width: 20px;
+        }
+        .pulse-sliders {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Haptic Studio Lab</h1>
-    <div class="subtitle">Прилагоди го бранот и тестирај го во реално време</div>
+    <h1>Pure Taptic Studio Pro</h1>
+    <div class="subtitle">Хардверска илузија на јачина преку различни iOS тригери</div>
 
+    <!-- Графички бран -->
     <div class="panel">
         <div class="panel-title">Графички бран (Haptic Waveform)</div>
         <canvas id="waveCanvas"></canvas>
-        <button class="trigger-btn" onclick="fireCustomHaptic()">ЕМИТУВАЈ СИГНАЛ</button>
-        
-        <div class="metrics">
-            <div class="metric-card">Времетраење<div id="m-duration">0ms</div></div>
-            <div class="metric-card">Импулси<div id="m-pulses">0</div></div>
-            <div class="metric-card">Латенција<div id="m-latency">0.0ms</div></div>
-        </div>
+        <button class="trigger-btn" onclick="fireAdvancedHaptic()">АКТИВИРАЈ TAPTIC ENGINE</button>
     </div>
 
+    <!-- Контроли -->
     <div class="panel">
-        <div class="panel-title">Контролна табла на параметри</div>
-        
-        <div class="control-group">
-            <div class="control-label">Број на импулси (Pulses): <span id="val-count">3</span></div>
-            <input type="range" id="param-count" min="1" max="10" value="3" oninput="updateWaveform()">
+        <div class="panel-title">Глобални поставки</div>
+        <div class="global-controls">
+            <div class="control-group">
+                <div class="control-label">Импулси: <span id="lbl-count">4</span></div>
+                <input type="range" id="global-count" min="1" max="8" value="4" oninput="buildPulseEditor()">
+            </div>
+            <div class="control-group">
+                <div class="control-label">Интервал: <span id="lbl-interval">50ms</span></div>
+                <input type="range" id="global-interval" min="20" max="150" value="50" oninput="updateWaveform()">
+            </div>
         </div>
 
-        <div class="control-group">
-            <div class="control-label">Интервал помеѓу импулси (Interval): <span id="val-interval">40ms</span></div>
-            <input type="range" id="param-interval" min="15" max="150" value="40" oninput="updateWaveform()">
-        </div>
-
-        <div class="control-group">
-            <div class="control-label">Почетен Интензитет (Intensity): <span id="val-intensity">1.0</span></div>
-            <input type="range" id="param-intensity" min="0.2" max="1.0" step="0.1" value="1.0" oninput="updateWaveform()">
-        </div>
-
-        <div class="control-group">
-            <div class="control-label">Придушување / Слабеење (Decay): <span id="val-decay">20%</span></div>
-            <input type="range" id="param-decay" min="0" max="80" step="5" value="20" oninput="updateWaveform()">
+        <div class="panel-title">Избор на Јачина (Хардверски профил) за секој импулс</div>
+        <div class="pulse-list-container" id="pulseList">
+            <!-- Се полни динамички преку JavaScript -->
         </div>
     </div>
+
 
     <script>
     const canvas = document.getElementById('waveCanvas');
     const ctx = canvas.getContext('2d');
+    
+    // Меморија за типот на јачина на секој импулс (1.0 = Heavy, 0.5 = Medium, 0.2 = Light, 0 = Mute)
+    let pulseTypes = [1.0, 0.5, 0.2, 1.0, 1.0, 1.0, 1.0, 1.0];
 
-    // Поставување реална резолуција за чист приказ
     function setupCanvas() {
         canvas.width = canvas.clientWidth * window.devicePixelRatio;
         canvas.height = canvas.clientHeight * window.devicePixelRatio;
         ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
     }
 
-    // Функција за исцртување на графичкиот бран во реално време
+    function buildPulseEditor() {
+        const count = parseInt(document.getElementById('global-count').value);
+        document.getElementById('lbl-count').innerText = count;
+        
+        const container = document.getElementById('pulseList');
+        container.innerHTML = '';
+
+        for (let i = 0; i < count; i++) {
+            const row = document.createElement('div');
+            row.className = 'pulse-row';
+            
+            row.innerHTML = `
+                <div class="pulse-index">#${i+1}</div>
+                <div class="pulse-sliders">
+                    <div class="control-label">Ниво на Јачина: <span id="lbl-int-${i}">${getProfileName(pulseTypes[i])}</span></div>
+                    <input type="range" id="pulse-int-${i}" min="0" max="3" step="1" value="${getSliderVal(pulseTypes[i])}" oninput="onTypeChange(${i})">
+                </div>
+            `;
+            container.appendChild(row);
+        }
+        updateWaveform();
+    }
+
+    function getProfileName(val) {
+        if (val === 1.0) return "1.0 (Силно)";
+        if (val === 0.5) return "0.5 (Средно)";
+        if (val === 0.2) return "0.2 (Слабо)";
+        return "0.0 (Пауза)";
+    }
+
+    function getSliderVal(val) {
+        if (val === 1.0) return 3;
+        if (val === 0.5) return 2;
+        if (val === 0.2) return 1;
+        return 0;
+    }
+
+    function onTypeChange(index) {
+        const sliderVal = parseInt(document.getElementById(`pulse-int-${index}`).value);
+        if (sliderVal === 3) pulseTypes[index] = 1.0;
+        else if (sliderVal === 2) pulseTypes[index] = 0.5;
+        else if (sliderVal === 1) pulseTypes[index] = 0.2;
+        else pulseTypes[index] = 0.0;
+
+        document.getElementById(`lbl-int-${index}`).innerText = getProfileName(pulseTypes[index]);
+        updateWaveform();
+    }
+
+    // Графичко цртање на бранот според селектираната хардверска јачина
     function updateWaveform() {
-        const count = parseInt(document.getElementById('param-count').value);
-        const interval = parseInt(document.getElementById('param-interval').value);
-        const intensity = parseFloat(document.getElementById('param-intensity').value);
-        const decay = parseInt(document.getElementById('param-decay').value) / 100;
-
-        // Ажурирај ги текстуалните вредности во интерфејсот
-        document.getElementById('val-count').innerText = count;
-        document.getElementById('val-interval').innerText = interval + 'ms';
-        document.getElementById('val-intensity').innerText = intensity.toFixed(1);
-        document.getElementById('val-decay').innerText = (decay * 100) + '%';
-
-        // Пресметка на вкупното времетраење на бранот
-        const totalDuration = (count - 1) * interval;
-        document.getElementById('m-duration').innerText = count > 1 ? totalDuration + 'ms' : 'Instant';
-        document.getElementById('m-pulses').innerText = count;
+        const count = parseInt(document.getElementById('global-count').value);
+        const interval = parseInt(document.getElementById('global-interval').value);
+        document.getElementById('lbl-interval').innerText = interval + 'ms';
 
         const w = canvas.clientWidth;
         const h = canvas.clientHeight;
         ctx.clearRect(0, 0, w, h);
 
-        // Цртање на централната (нулта) линија
         ctx.strokeStyle = '#2c2c2e';
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -220,7 +254,7 @@
         ctx.lineTo(w, h / 2);
         ctx.stroke();
 
-        const padding = 30;
+        const padding = 40;
         const drawArea = w - (padding * 2);
 
         for (let i = 0; i < count; i++) {
@@ -231,73 +265,79 @@
                 x = w / 2;
             }
 
-            // Нивото на јачина опаѓа со секој следен импулс врз основа на Decay
-            const currentIntensity = intensity * Math.pow((1 - decay), i);
-            const barHeight = currentIntensity * (h / 2.5);
+            const intensity = pulseTypes[i];
+            const barHeight = intensity * (h / 2.5);
 
-            // Нацртај го импулсот како вертикален симетричен бран
-            ctx.strokeStyle = '#30a2ff';
-            ctx.lineWidth = 4;
+            ctx.strokeStyle = intensity > 0 ? '#30a2ff' : '#48484a';
+            ctx.lineWidth = 6;
             ctx.lineCap = 'round';
             ctx.beginPath();
             ctx.moveTo(x, (h / 2) - barHeight);
             ctx.lineTo(x, (h / 2) + barHeight);
             ctx.stroke();
 
-            // Точка на врвот на импулсот за подобра видливост
-            ctx.fillStyle = '#34c759';
-            ctx.beginPath();
-            ctx.arc(x, (h / 2) - barHeight, 3, 0, Math.PI * 2);
-            ctx.fill();
+            if (intensity > 0) {
+                ctx.fillStyle = '#34c759';
+                ctx.beginPath();
+                ctx.arc(x, (h / 2) - barHeight, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
     }
 
-    // Системски хаптички двигател со симулација на range селектор
-    function executePulse(delayMs) {
+    // ТРИГЕРИ ШТО ПРЕДИЗВИКУВААТ РАЗЛИЧНА СИЛА ВО TAPTIC ENGINE БЕЗ ЗВУК
+    function dispatchPureHaptic(type, delayMs) {
+        if (type === 0.0) return;
+
         setTimeout(() => {
-            const el = document.createElement('input');
-            el.type = 'range';
-            el.min = 0;
-            el.max = 1;
-            el.value = 0;
-            el.style.position = 'fixed';
-            el.style.opacity = '0';
-            el.style.pointerEvents = 'none';
-            document.body.appendChild(el);
-            
-            el.value = 1; // Форсира хаптички рефлекс во Safari кај iOS
-            
-            setTimeout(() => el.remove(), 40);
+            const wrapper = document.createElement('div');
+            wrapper.setAttribute("style", "position:fixed; opacity:0; pointer-events:none; top:0; left:0;");
+
+            if (type === 1.0) {
+                // СИЛНО (Heavy): Системско менување на опција (најсилен удар во Safari)
+                wrapper.innerHTML = `<select><option selected>1</option><option>2</option></select>`;
+                document.body.appendChild(wrapper);
+                const select = wrapper.querySelector('select');
+                select.selectedIndex = 1; 
+                select.dispatchEvent(new Event('change'));
+            } 
+            else if (type === 0.5) {
+                // СРЕДНО (Medium): Оригиналниот фабрички клик преку switch
+                wrapper.innerHTML = `<input type="checkbox" switch><label></label>`;
+                document.body.appendChild(wrapper);
+                wrapper.querySelector('label').click();
+            } 
+            else if (type === 0.2) {
+                // СЛАБО (Light): Поместување на микро-лизгач за суптилен клик
+                wrapper.innerHTML = `<input type="range" min="0" max="1" value="0">`;
+                document.body.appendChild(wrapper);
+                const range = wrapper.querySelector('input');
+                range.value = 1;
+                range.dispatchEvent(new Event('input'));
+            }
+
+            setTimeout(() => wrapper.remove(), 150);
         }, delayMs);
     }
 
-    // Главна функција за емитување на креираниот бран
-    function fireCustomHaptic() {
-        const startDiagnostic = performance.now();
-        
-        const count = parseInt(document.getElementById('param-count').value);
-        const interval = parseInt(document.getElementById('param-interval').value);
+    function fireAdvancedHaptic() {
+        const count = parseInt(document.getElementById('global-count').value);
+        const interval = parseInt(document.getElementById('global-interval').value);
 
-        // Праќање на серијата импулси точно темпирани во милисекунди
         for (let i = 0; i < count; i++) {
             const currentDelay = i * interval;
-            executePulse(currentDelay);
+            const currentType = pulseTypes[i];
+            
+            // Емитување чиста хардверска серија
+            dispatchPureHaptic(currentType, currentDelay);
         }
-
-        // Пресметка на латенција
-        requestAnimationFrame(() => {
-            const endDiagnostic = performance.now();
-            document.getElementById('m-latency').innerText = (endDiagnostic - startDiagnostic).toFixed(1) + 'ms';
-        });
     }
 
-    // Иницијализација на апликацијата при вчитавање
     window.onload = () => {
         setupCanvas();
-        updateWaveform();
+        buildPulseEditor();
     };
 
-    // Оневозможување на несакано зумирање на екран кај iOS уреди
     document.addEventListener('gesturestart', e => e.preventDefault());
 </script>
 </body>
