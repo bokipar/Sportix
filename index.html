@@ -3,169 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Instagram PWA Ultimate</title>
-    
-    <!-- Поврзување со манифестот -->
+    <title>Instagram PWA</title>
     <link rel="manifest" href="manifest.json">
-    
-    <!-- iOS Специфични тагови за PWA да изгледа како оригинална апликација -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Instagram">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/174/174855.png">
-
+    <link rel="apple-touch-icon" href="https://flaticon.com">
     <style>
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            user-select: none; 
-            -webkit-user-select: none; 
-        }
-        
-        body { 
-            background-color: #000; 
-            color: #fff; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            overflow-x: hidden; 
-            padding-bottom: 70px; 
-        }
-        
-        /* Главна навигација горе (Header) */
-        .header { 
-            height: 44px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 0 15px; 
-            border-bottom: 1px solid #121212; 
-            position: sticky; 
-            top: 0; 
-            background: #000; 
-            z-index: 100; 
-            padding-top: env(safe-area-inset-top); 
-        }
-        .header h1 { 
-            font-family: 'Georgia', serif; 
-            font-style: italic; 
-            font-size: 24px; 
-            letter-spacing: -1px; 
-        }
-        .header-icons { 
-            display: flex; 
-            gap: 20px; 
-            font-size: 20px; 
-        }
-
-        /* Лента за Stories (Приказни) */
-        .stories-container { 
-            display: flex; 
-            gap: 15px; 
-            padding: 12px 10px; 
-            overflow-x: auto; 
-            border-bottom: 1px solid #121212; 
-            background: #000; 
-        }
-        .stories-container::-webkit-scrollbar { 
-            display: none; 
-        }
-        .story-wrapper { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            font-size: 11px; 
-            color: #a8a8a8; 
-            width: 68px; 
-        }
-        .story-ring { 
-            width: 64px; 
-            height: 64px; 
-            border-radius: 50%; 
-            background: linear-gradient(45deg, #fbc117, #d9317a, #9124b7); 
-            padding: 2px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            margin-bottom: 4px; 
-            cursor: pointer; 
-        }
-        .story-avatar { 
-            width: 100%; 
-            height: 100%; 
-            border-radius: 50%; 
-            background: #000; 
-            border: 2px solid #000; 
-            object-fit: cover; 
-        }
-        .story-wrapper.viewed .story-ring { 
-            background: #262626; 
-        }
-
-        /* Пост Картички (Feed) */
-        .post { 
-            margin-bottom: 10px; 
-            background: #000; 
-        }
-        .post-header { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 10px; 
-        }
-        .post-header-left { 
-            display: flex; 
-            align-items: center; 
-        }
-        .avatar { 
-            width: 32px; 
-            height: 32px; 
-            border-radius: 50%; 
-            background: #333; 
-            margin-right: 10px; 
-            object-fit: cover; 
-            border: 1px solid #1c1c1c; 
-        }
-        .username { 
-            font-weight: 600; 
-            font-size: 13px; 
-        }
-        .more-options { 
-            font-size: 18px; 
-            color: #a8a8a8; 
-            cursor: pointer; 
-        }
-        
-        /* Квадратна слика за постот */
-        .post-img-container { 
-            position: relative; 
-            width: 100%; 
-            aspect-ratio: 1/1; 
-            overflow: hidden; 
-            background: #050505; 
-        }
-        .post-img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-        }
-        
-        /* Скокачко срце при Double-Tap */
-        .pop-heart { 
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%) scale(0); 
-            font-size: 90px; 
-            color: #fff; 
-            opacity: 0; 
-            pointer-events: none; 
-            z-index: 10; 
-            filter: drop-shadow(0 4px 15px rgba(0,0,0,0.5)); 
-        }
-        .animate-heart { 
-            animation: heartPop 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
-        }
-        
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+        body { background-color: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow-x: hidden; padding-bottom: 70px; }
+        .header { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid #121212; position: sticky; top: 0; background: #000; z-index: 100; padding-top: env(safe-area-inset-top); }
+        .header h1 { font-family: 'Georgia', serif; font-style: italic; font-size: 24px; letter-spacing: -1px; }
+        .header-icons { display: flex; gap: 20px; font-size: 20px; }
+        .stories-container { display: flex; gap: 15px; padding: 12px 10px; overflow-x: auto; border-bottom: 1px solid #121212; background: #000; }
+        .stories-container::-webkit-scrollbar { display: none; }
+        .story-wrapper { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: #a8a8a8; width: 68px; }
+        .story-ring { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(45deg, #fbc117, #d9317a, #9124b7); padding: 2px; display: flex; justify-content: center; align-items: center; margin-bottom: 4px; cursor: pointer; }
+        .story-avatar { width: 100%; height: 100%; border-radius: 50%; background: #000; border: 2px solid #000; object-fit: cover; }
+        .story-wrapper.viewed .story-ring { background: #262626; }
+        .post { margin-bottom: 10px; background: #000; }
+        .post-header { display: flex; align-items: center; justify-content: space-between; padding: 10px; }
+        .post-header-left { display: flex; align-items: center; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; background: #333; margin-right: 10px; object-fit: cover; border: 1px solid #1c1c1c; }
+        .username { font-weight: 600; font-size: 13px; }
+        .more-options { font-size: 18px; color: #a8a8a8; cursor: pointer; }
+        .post-img-container { position: relative; width: 100%; aspect-ratio: 1/1; overflow: hidden; background: #050505; }
+        .post-img { width: 100%; height: 100%; object-fit: cover; }
+        .pop-heart { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 90px; color: #fff; opacity: 0; pointer-events: none; z-index: 10; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.5)); }
+        .animate-heart { animation: heartPop 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes heartPop {
             0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
             15% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.9; }
@@ -173,265 +38,136 @@
             75% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
             100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
         }
-
-        /* Контролни копчиња (Икони под слика) */
-        .post-actions { 
-            padding: 12px 10px; 
-            display: flex; 
-            justify-content: space-between; 
-            font-size: 22px; 
-        }
-        .post-actions-left { 
-            display: flex; 
-            gap: 18px; 
-        }
-        .action-btn { 
-            cursor: pointer; 
-            transition: transform 0.1s ease; 
-        }
-        .action-btn:active { 
-            transform: scale(0.8); 
-        }
-        .liked { 
-            color: #ff3040; 
-            animation: btnScale 0.2s ease; 
-        }
-        @keyframes btnScale { 
-            50% { transform: scale(1.3); } 
-        }
-        
-        /* Текстови и описи под постот */
-        .post-info { 
-            padding: 0 10px 10px 10px; 
-            font-size: 13.5px; 
-        }
-        .likes-count { 
-            font-weight: 600; 
-            margin-bottom: 6px; 
-        }
-        .caption { 
-            line-height: 1.4; 
-            color: #f5f5f5; 
-        }
-        .caption span { 
-            font-weight: 600; 
-            margin-right: 6px; 
-            color: #fff; 
-        }
-        .view-comments { 
-            color: #737373; 
-            font-size: 13px; 
-            margin-top: 6px; 
-            cursor: pointer; 
-        }
-
-        /* Фиксна долна лента со икони (Navigation Bar) */
-        .nav-bar { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 49px; 
-            background: #000; 
-            border-top: 1px solid #121212; 
-            display: flex; 
-            justify-content: space-around; 
-            align-items: center; 
-            font-size: 24px; 
-            padding-bottom: env(safe-area-inset-bottom); 
-            z-index: 100; 
-        }
-        .nav-icon { 
-            cursor: pointer; 
-        }
+        .post-actions { padding: 12px 10px; display: flex; justify-content: space-between; font-size: 22px; }
+        .post-actions-left { display: flex; gap: 18px; }
+        .action-btn { cursor: pointer; transition: transform 0.1s ease; }
+        .action-btn:active { transform: scale(0.8); }
+        .liked { color: #ff3040; animation: btnScale 0.2s ease; }
+        @keyframes btnScale { 50% { transform: scale(1.3); } }
+        .post-info { padding: 0 10px 10px 10px; font-size: 13.5px; }
+        .likes-count { font-weight: 600; margin-bottom: 6px; }
+        .caption { line-height: 1.4; color: #f5f5f5; }
+        .caption span { font-weight: 600; margin-right: 6px; color: #fff; }
+        .view-comments { color: #737373; font-size: 13px; margin-top: 6px; cursor: pointer; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; height: 49px; background: #000; border-top: 1px solid #121212; display: flex; justify-content: space-around; align-items: center; font-size: 24px; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+        .nav-icon { cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <!-- Навигација горе -->
     <div class="header">
         <h1>Instagram</h1>
         <div class="header-icons">
-            <span onclick="triggerHaptic('light')">❤️</span>
-            <span onclick="triggerHaptic('light')">💬</span>
+            <span onclick="triggerHaptic()">❤️</span>
+            <span onclick="triggerHaptic()">💬</span>
         </div>
     </div>
-
-    <!-- Stories (Приказни) -->
     <div class="stories-container">
         <div class="story-wrapper" onclick="viewStory(this)">
-            <div class="story-ring"><img class="story-avatar" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150"></div>
+            <div class="story-ring"><img class="story-avatar" src="https://unsplash.com"></div>
             <div>tvoja_prika</div>
         </div>
         <div class="story-wrapper" onclick="viewStory(this)">
-            <div class="story-ring"><img class="story-avatar" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150"></div>
+            <div class="story-ring"><img class="story-avatar" src="https://unsplash.com"></div>
             <div>alex_travel</div>
         </div>
         <div class="story-wrapper" onclick="viewStory(this)">
-            <div class="story-ring"><img class="story-avatar" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150"></div>
+            <div class="story-ring"><img class="story-avatar" src="https://unsplash.com"></div>
             <div>marta_art</div>
         </div>
-        <div class="story-wrapper" onclick="viewStory(this)">
-            <div class="story-ring"><img class="story-avatar" src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150"></div>
-            <div>luka_fit</div>
-        </div>
     </div>
-
-    <!-- ПОСТ 1 -->
     <div class="post">
         <div class="post-header">
             <div class="post-header-left">
-                <img class="avatar" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100">
+                <img class="avatar" src="https://unsplash.com">
                 <div class="username">alex_travel</div>
             </div>
-            <div class="more-options" onclick="triggerHaptic('light')">•••</div>
+            <div class="more-options" onclick="triggerHaptic()">•••</div>
         </div>
         <div class="post-img-container" onclick="handleDoubleTap(this, 1)">
-            <img class="post-img" src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800">
+            <img class="post-img" src="https://unsplash.com">
             <div class="pop-heart">❤️</div>
         </div>
         <div class="post-actions">
             <div class="post-actions-left">
                 <span class="action-btn" id="heart-btn-1" onclick="toggleLike(1)">🤍</span>
-                <span class="action-btn" onclick="triggerHaptic('light')">💬</span>
-                <span class="action-btn" onclick="triggerHaptic('light')">✈️</span>
+                <span class="action-btn" onclick="triggerHaptic()">💬</span>
+                <span class="action-btn" onclick="triggerHaptic()">✈️</span>
             </div>
-            <span class="action-btn" onclick="triggerHaptic('medium')">📥</span>
+            <span class="action-btn" onclick="triggerHaptic()">📥</span>
         </div>
         <div class="post-info">
             <div class="likes-count" id="likes-1">1,420 likes</div>
-            <div class="caption"><span>alex_travel</span> Летни вибрации и уживање на плажа! Сонцето е преубаво денес 🏖️✨</div>
-            <div class="view-comments" onclick="triggerHaptic('light')">Види ги сите 24 коментари</div>
+            <div class="caption"><span>alex_travel</span> Летни вибрации и уживање на плажа! 🏖️✨</div>
+            <div class="view-comments" onclick="triggerHaptic()">Види ги сите коментари</div>
         </div>
     </div>
-
-    <div class="post">
-        <div class="post-header">
-            <div class="post-header-left">
-                <img class="avatar" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100">
-                <div class="username">marta_art</div>
-            </div>
-            <div class="more-options" onclick="triggerHaptic('light')">•••</div>
-        </div>
-        <div class="post-img-container" onclick="handleDoubleTap(this, 2)">
-            <img class="post-img" src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800">
-            <div class="pop-heart">❤️</div>
-        </div>
-        <div class="post-actions">
-            <div class="post-actions-left">
-                <span class="action-btn" id="heart-btn-2" onclick="toggleLike(2)">🤍</span>
-                <span class="action-btn" onclick="triggerHaptic('light')">💬</span>
-                <span class="action-btn" onclick="triggerHaptic('light')">✈️</span>
-            </div>
-            <span class="action-btn" onclick="triggerHaptic('medium')">📥</span>
-        </div>
-        <div class="post-info">
-            <div class="likes-count" id="likes-2">895 likes</div>
-            <div class="caption"><span>marta_art</span> Новото платно е конечно готово. Изразено преку силни бои и многу чувства 🎨🖌️</div>
-            <div class="view-comments" onclick="triggerHaptic('light')">Види ги сите 12 коментари</div>
-        </div>
-    </div>
-
     <div class="nav-bar">
-        <span class="nav-icon" onclick="triggerHaptic('light')">🏠</span>
-        <span class="nav-icon" onclick="triggerHaptic('light')">🔍</span>
-        <span class="nav-icon" onclick="triggerHaptic('medium')">➕</span>
-        <span class="nav-icon" onclick="triggerHaptic('light')">🎬</span>
-        <span class="nav-icon" onclick="triggerHaptic('light')">👤</span>
+        <span class="nav-icon" onclick="triggerHaptic()">🏠</span>
+        <span class="nav-icon" onclick="triggerHaptic()">🔍</span>
+        <span class="nav-icon" onclick="triggerHaptic()">➕</span>
+        <span class="nav-icon" onclick="triggerHaptic()">🎬</span>
+        <span class="nav-icon" onclick="triggerHaptic()">👤</span>
     </div>
-
     <script>
-        const likedStates = { 1: false, 2: false };
-        const likeCounts = { 1: 1420, 2: 895 };
+        const likedStates = { 1: false };
+        const likeCounts = { 1: 1420 };
 
-        // НАТИВЕН ХАПТИЧКИ СИМУЛАТОР ЗА IOS (Работи целосно нечујно преку switch елемент)
-        function triggerHaptic(type) {
-            // 1. Поддршка за Android
-            if (navigator.vibrate) {
-                if (type === 'light') navigator.vibrate(30);
-                if (type === 'medium') navigator.vibrate(60);
-                if (type === 'heavy') navigator.vibrate(100);
-                return;
-            }
-
-            // 2. Нативено тригерче на Taptic Engine за iOS
+        function triggerHaptic() {
             try {
-                const container = document.createElement('div');
-                const id = 'haptic-' + Math.random().toString(36).substring(2);
-                
-                container.innerHTML = `<input type="checkbox" id="${id}" switch><label for="${id}"></label>`;
-                container.setAttribute("style", "position:fixed; top:0; left:0; opacity:0; pointer-events:none; z-index:-1;");
-                document.body.appendChild(container);
-
-                const label = container.querySelector('label');
-
-                if (type === 'light') {
-                    label.click(); 
-                } 
-                else if (type === 'medium') {
-                    label.click();
-                    setTimeout(() => { label.click(); }, 30); 
-                } 
-                else if (type === 'heavy') {
-                    label.click();
-                    setTimeout(() => { label.click(); }, 20);
-                    setTimeout(() => { label.click(); }, 40);
-                }
-
-                setTimeout(() => { container.remove(); }, 200);
-            } catch (e) {
-                console.log("Грешка при извршување на хаптика:", e);
-            }
+                const input = document.createElement('input');
+                input.setAttribute('type', 'password');
+                input.setAttribute('autofocus', 'true');
+                input.style.position = 'fixed';
+                input.style.opacity = '0';
+                input.style.top = '0';
+                input.style.left = '0';
+                input.style.height = '0';
+                input.style.width = '0';
+                document.body.appendChild(input);
+                input.focus();
+                setTimeout(() => {
+                    input.blur();
+                    input.remove();
+                }, 10);
+            } catch (e) { console.log(e); }
         }
 
-        // Детекција на брз дупли клик (Double Tap за лајк)
         let lastTap = 0;
         function handleDoubleTap(container, id) {
             const now = Date.now();
             if (now - lastTap < 300) {
-                // Изврши го силниот нечуен хаптички удар
-                triggerHaptic('heavy');
-                
-                // Анимирај го големото срце на средина на сликата
+                triggerHaptic();
                 const heart = container.querySelector('.pop-heart');
                 heart.classList.remove('animate-heart');
                 void heart.offsetWidth; 
                 heart.classList.add('animate-heart');
-                
-                if (!likedStates[id]) {
-                    toggleLike(id);
-                }
+                if (!likedStates[id]) { toggleLike(id); }
             }
             lastTap = now;
         }
 
-        // Систем за лајкување преку иконата (Срце под пост)
         function toggleLike(id) {
             likedStates[id] = !likedStates[id];
             const btn = document.getElementById(`heart-btn-${id}`);
             const countEl = document.getElementById(`likes-${id}`);
-            
             if (likedStates[id]) {
                 btn.innerText = '❤️';
                 btn.classList.add('liked');
                 likeCounts[id]++;
-                triggerHaptic('medium');
+                triggerHaptic();
             } else {
                 btn.innerText = '🤍';
                 btn.classList.remove('liked');
                 likeCounts[id]--;
-                triggerHaptic('light');
+                triggerHaptic();
             }
             countEl.innerText = `${likeCounts[id].toLocaleString()} likes`;
         }
 
-        // Прегледување на приказна (Го гаси шарениот круг околу иконата)
         function viewStory(element) {
-            triggerHaptic('medium');
+            triggerHaptic();
             element.classList.add('viewed');
         }
-
-        // Блокирај ги фабричките iOS Safari гестикулации за дефолт-зум
         document.addEventListener('gesturestart', e => e.preventDefault());
     </script>
 </body>
