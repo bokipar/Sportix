@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>iOS Haptic Engineer Studio</title>
+    <title>iOS Haptic Click Lab</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,135 +15,109 @@
         h1 { font-size: 24px; font-weight: 700; margin-bottom: 5px; text-align: center; }
         .subtitle { color: #8e8e93; font-size: 13px; margin-bottom: 25px; text-align: center; }
         
-        /* ПАНЕЛ ЗА КОНТРОЛА И СЛАЈДЕРИ */
-        .control-panel { width: 100%; max-width: 380px; background: #1c1c1e; border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px solid #2c2c2e; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .panel-row { margin-bottom: 20px; }
-        .panel-row:last-child { margin-bottom: 0; }
-        .label-group { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #a8a8a8; }
-        .label-group span b { color: #0095f6; }
+        .control-panel { width: 100%; max-width: 380px; background: #1c1c1e; border-radius: 16px; padding: 20px; margin-bottom: 25px; border: 1px solid #2c2c2e; }
+        .label-group { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #a8a8a8; }
+        .label-group span b { color: #34c759; }
         
-        /* Стилизирање на слајдерите */
-        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #2c2c2e; border-radius: 3px; outline: none; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: #0095f6; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.4); transition: transform 0.1s; }
-        input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.2); }
+        /* ПОПРАВКА НА СЛАЈДЕРОТ: Овозможува непречено влечење на iOS */
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 8px; background: #2c2c2e; border-radius: 4px; outline: none; touch-action: pan-x !important; pointer-events: auto !important; margin-bottom: 15px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: #34c759; border-radius: 50%; cursor: pointer; pointer-events: auto !important; }
 
-        /* ГЛАВНО КУТИШТЕ ЗА ТЕСТИРАЊЕ (КОПЧЕ) */
-        .test-pad { width: 100%; max-width: 380px; height: 120px; background: linear-gradient(135deg, #1c1c1e, #2c2c2e); border: 2px dashed #0095f6; border-radius: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; position: relative; margin-bottom: 20px; transition: border-style 0.2s; }
-        .test-pad:active { background: #2c2c2e; }
-        .pad-title { font-size: 18px; font-weight: 700; color: #0095f6; }
-        .pad-desc { font-size: 12px; color: #8e8e93; margin-top: 4px; }
+        /* МРЕЖА СО БРЗИ КОПЧИЊА ЗА ИЗБОР АКО СЛАЈДЕРОТ КОЧИ */
+        .selector-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; width: 100%; margin-top: 5px; }
+        .selector-num { background: #2c2c2e; border: 1px solid #3a3a3c; border-radius: 8px; height: 35px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; transition: background 0.1s; pointer-events: auto !important; }
+        .selector-num.active { background: #34c759; border-color: #34c759; color: #000; }
+
+        /* ТЕСТ ПОДРАЧЈЕ ЗА SWIPE ГЕСТИКУЛАЦИЈА */
+        .swipe-zone { width: 100%; max-width: 380px; height: 100px; background: #1c1c1e; border: 2px dashed #34c759; border-radius: 16px; display: flex; justify-content: space-around; align-items: center; padding: 0 15px; position: relative; overflow: hidden; margin-bottom: 20px; pointer-events: auto !important; }
+        .swipe-instruction { position: absolute; font-size: 14px; color: #8e8e93; font-weight: 600; pointer-events: none; text-align: center; width: 100%; top: 38%; }
         
-        /* Нативниот сокриен оверлеј слој */
-        .haptic-switch-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 10; cursor: pointer; }
-
-                /* ИНСТРУМЕНТ ЗА МЕРЕЊЕ И ДИЈАГНОСТИКА */
-        .stats-box { width: 100%; max-width: 380px; background: #121212; border-radius: 12px; padding: 12px 15px; border: 1px solid #1c1c1c; display: flex; justify-content: space-between; font-family: monospace; font-size: 12px; color: #8e8e93; }
-        .stats-box span b { color: #34c759; }
+        .real-switch { width: 45px; height: 45px; opacity: 0; z-index: 5; cursor: pointer; -webkit-appearance: none; pointer-events: auto !important; }
     </style>
 </head>
 <body>
 
-    <h1>Haptic Lab Engine</h1>
-    <div class="subtitle">Креирај и калибрирај сопствени системски вибрации</div>
+    <h1>Haptic Swipe Engine</h1>
+    <div class="subtitle">Калибрирање преку реални физички импулси</div>
 
-    <!-- ТВОЈОТ КОНТРОЛЕН ПАНЕЛ ОД КАДЕ ШТО МЕНУВАШ -->
     <div class="control-panel">
-        <!-- Слајдер 1: Број на импулси -->
-        <div class="panel-row">
-            <div class="label-group">
-                <span>Број на импулси (Pulses)</span>
-                <span><b id="lbl-pulses">3</b> пати</span>
-            </div>
-            <input type="range" id="input-pulses" min="1" max="6" value="3" oninput="updateLiveSettings()">
+        <div class="label-group">
+            <span>Избери број на импулси:</span>
+            <span><b id="lbl-count">4</b> вибрации</span>
         </div>
-
-        <!-- Слајдер 2: Интервал помеѓу нив -->
-        <div class="panel-row">
-            <div class="label-group">
-                <span>Растојание / Микро-пауза</span>
-                <span><b id="lbl-interval">25</b> ms</span>
-            </div>
-            <input type="range" id="input-interval" min="10" max="150" value="25" oninput="updateLiveSettings()">
-        </div>
-
-        <!-- Слајдер 3: Сила -->
-        <div class="panel-row">
-            <div class="label-group">
-                <span>Пресметан Интензитет</span>
-                <span><b id="lbl-amplitude">85</b> %</span>
-            </div>
-            <input type="range" id="input-amplitude" min="10" max="100" value="85" oninput="updateLiveSettings()">
-        </div>
-    </div>
-
-    <!-- ГОЛЕМОТО СКУШТЕ КАДЕ ШТО КЛИКАШ И ТЕСТИРАШ ОДЗИВ -->
-    <div class="test-pad">
-        <span class="pad-title">ПРИТИСНИ ТУКА</span>
-        <span class="pad-desc">Направи допир за да го осетиш твојот патерн</span>
         
-        <!-- Нативниот оверлеј кој го тригерува Taptic Engine со твојот реална допир -->
-        <input type="checkbox" switch class="haptic-switch-overlay" id="custom-haptic-trigger">
+        <!-- Оптимизиран слајдер -->
+        <input type="range" id="input-count" min="1" max="6" value="4" oninput="changeBySlider(this.value)">
+        
+        <!-- Системски копчиња како резерва -->
+        <div class="selector-grid">
+            <div class="selector-num" onclick="changeByBtn(1)">1</div>
+            <div class="selector-num" onclick="changeByBtn(2)">2</div>
+            <div class="selector-num" onclick="changeByBtn(3)">3</div>
+            <div class="selector-num" class="selector-num active" onclick="changeByBtn(4)" id="btn-default">4</div>
+            <div class="selector-num" onclick="changeByBtn(5)">5</div>
+            <div class="selector-num" onclick="changeByBtn(6)">6</div>
+        </div>
     </div>
 
-    <!-- ДИЈАГНОСТИКА -->
-    <div class="stats-box">
-        <span>ТАКТ: <b id="stat-pulses">3 ПУЛСА</b></span>
-        <span>ИНТЕРВАЛ: <b id="stat-ms">25ms</b></span>
-        <span>ОДЗИВ: <b id="stat-latency">0.0ms</b></span>
+    <div class="swipe-zone" id="pad-zone">
+        <div class="swipe-instruction" id="ins-text">Повлечи брзо со прст овде ➔</div>
+    </div>
+
+        <div style="font-family: monospace; font-size: 12px; color: #8e8e93; text-align: center; width: 100%; max-width: 380px;">
+        СТАТУС: <b style="color: #34c759;">СЕНЗОРИТЕ СЕ ОДБЛОКИРАНИ</b><br>
+        <span style="font-size: 10px; color: #555; display: block; margin-top: 5px;">Ако слајдерот кочи, кликни директно на некоја од бројките.</span>
     </div>
 
     <script>
-        const triggerOverlay = document.getElementById('custom-haptic-trigger');
-
-        // Читање и ажурирање на вредностите во реално време на екранот
-        function updateLiveSettings() {
-            const pulses = document.getElementById('input-pulses').value;
-            const interval = document.getElementById('input-interval').value;
-            const amplitude = document.getElementById('input-amplitude').value;
-
-            document.getElementById('lbl-pulses').innerText = pulses;
-            document.getElementById('lbl-interval').innerText = interval;
-            document.getElementById('lbl-amplitude').innerText = amplitude;
-
-            document.getElementById('stat-pulses').innerText = pulses + ' ПУЛСА';
-            document.getElementById('stat-ms').innerText = interval + 'ms';
+        // Функција за промена на вредноста преку слајдерот
+        function changeBySlider(val) {
+            updateInterface(parseInt(val));
         }
 
-        // Помошен извршител кој испраќа поединечни импулси кон Taptic Engine во одредени милисекунди
-        function dispatchEnginePulse(ms) {
-            const wrapper = document.createElement('div');
-            const uniqueId = 'lab-gate-' + Math.random().toString(36).substring(2);
-            wrapper.innerHTML = `<input type="checkbox" id="${uniqueId}" switch><label for="${uniqueId}"></label>`;
-            wrapper.setAttribute("style", "position:fixed; opacity:0; pointer-events:none; top:0; left:0;");
-            document.body.appendChild(wrapper);
-            const actionNode = wrapper.querySelector('label');
-            
-            setTimeout(() => { actionNode.click(); }, ms);
-            setTimeout(() => { wrapper.remove(); }, ms + 150);
+        // Функција за промена на вредноста преку копчињата со бројки
+        function changeByBtn(val) {
+            document.getElementById('input-count').value = val;
+            updateInterface(val);
         }
 
-        // ГЛАВЕН ИНЖЕНЕРСКИ МЕХАНИЗАМ ЗА СИМУЛАЦИЈА НА ДОПИР
-        triggerOverlay.addEventListener('click', () => {
-            const startPerf = performance.now();
+        // Централна логика за цртање на прекинувачите на екранот
+        function updateInterface(count) {
+            document.getElementById('lbl-count').innerText = count;
             
-            // Ги земаме тековните вредности директно од твоите слајдери
-            const totalPulses = parseInt(document.getElementById('input-pulses').value);
-            const intervalMs = parseInt(document.getElementById('input-interval').value);
-
-            // Креирање на сопствена хаптичка композиција врз основа на твоите математички вредности
-            // Првиот пулс оди автоматски од самиот физички клик, наредните се темпираат математички
-            for (let i = 1; i < totalPulses; i++) {
-                dispatchEnginePulse(i * intervalMs);
-            }
-
-            // Мерење на брзината со која хардверот го обработи твојот код
-            requestAnimationFrame(() => {
-                const endPerf = performance.now();
-                document.getElementById('stat-latency').innerText = (endPerf - startPerf).toFixed(1) + 'ms';
+            // Ажурирај ги визуелните стилови на копчињата со бројки
+            const btns = document.querySelectorAll('.selector-num');
+            btns.forEach((btn, idx) => {
+                if (idx + 1 === count) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
             });
-        });
+
+            const padZone = document.getElementById('pad-zone');
+            padZone.innerHTML = `<div class="swipe-instruction" id="ins-text">Повлечи брзо со прст овде ➔</div>`;
+            
+            // Нацртај ги реалните нативни прекинувачи еден до друг
+            for (let i = 0; i < count; i++) {
+                const sw = document.createElement('input');
+                sw.setAttribute('type', 'checkbox');
+                sw.setAttribute('switch', ''); 
+                sw.className = 'real-switch';
+                
+                sw.addEventListener('touchstart', () => {
+                    const txt = document.getElementById('ins-text');
+                    if(txt) txt.style.opacity = '0';
+                });
+                
+                padZone.appendChild(sw);
+            }
+        }
+
+        // Почетно стартување на системот со дефолтна вредност 4
+        updateInterface(4);
 
         document.addEventListener('gesturestart', e => e.preventDefault());
-    </style>
+    </script>
 </body>
 </html>
