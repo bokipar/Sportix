@@ -1,0 +1,8 @@
+{
+  "appId": "mk.boki.hapticslab",
+  "appName": "Haptics Lab",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never"
+  }
+}

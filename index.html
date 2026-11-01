@@ -2,51 +2,67 @@
 <html lang="mk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>iOS Core Haptics Lab</title>
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>Haptics Lab</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
-        body { background-color: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 30px 20px; min-height: 100vh; }
-        
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+        html, body { background: #000; }
+        body {
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100dvh;
+            padding: calc(env(safe-area-inset-top, 0px) + 24px) 20px calc(env(safe-area-inset-bottom, 0px) + 30px);
+        }
+
         h1 { font-size: 24px; font-weight: 700; margin-bottom: 5px; text-align: center; }
         .subtitle { color: #8e8e93; font-size: 13px; margin-bottom: 25px; text-align: center; }
-        
-        .monitor-panel { width: 100%; max-width: 380px; background: #1c1c1e; border-radius: 16px; padding: 18px; margin-bottom: 25px; border: 1px solid #2c2c2e; }
-        .monitor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 11px; color: #8e8e93; font-weight: 600; text-transform: uppercase; }
-        .live-metrics { display: flex; justify-content: space-between; gap: 10px; }
-        .metric-card { background: #2c2c2e; padding: 10px; border-radius: 10px; flex: 1; text-align: center; }
-        .metric-num { font-size: 16px; font-weight: 700; color: #34c759; font-family: monospace; }
-        .metric-txt { font-size: 9px; color: #8e8e93; text-transform: uppercase; margin-top: 2px; }
 
-        .section-title { align-self: flex-start; font-size: 12px; text-transform: uppercase; color: #8e8e93; margin: 15px 0 8px 5px; font-weight: 600; letter-spacing: 0.5px; }
+        .monitor-panel { width: 100%; max-width: 380px; background: #1c1c1e; border-radius: 16px; padding: 18px; margin-bottom: 10px; border: 1px solid #2c2c2e; }
+        .monitor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px; color: #8e8e93; font-weight: 600; }
+        #mode { color: #8e8e93; }
+        #mode.native { color: #34c759; }
+        #mode.web { color: #ff9f0a; }
+        .live-metrics { display: flex; justify-content: space-between; gap: 10px; }
+        .metric-card { background: #2c2c2e; padding: 10px 6px; border-radius: 10px; flex: 1; text-align: center; min-width: 0; }
+        .metric-num { font-size: 15px; font-weight: 700; color: #34c759; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .metric-txt { font-size: 10px; color: #8e8e93; margin-top: 3px; }
+
+        .warning-box { width: 100%; max-width: 380px; background: #2c1f00; border: 1px solid #5c4000; color: #ffcc00; border-radius: 12px; padding: 12px 14px; font-size: 12px; line-height: 1.4; margin-bottom: 10px; display: none; }
+
+        .section-title { width: 100%; max-width: 380px; font-size: 13px; color: #8e8e93; margin: 18px 0 8px 10px; font-weight: 600; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 380px; }
-        
-        .btn { position: relative; height: 75px; background: #1c1c1e; border-radius: 14px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border: 1px solid #2c2c2e; text-align: center; padding: 0 10px; }
-        .btn:active { background: #2c2c2e; }
+
+        .btn { height: 75px; background: #1c1c1e; border-radius: 14px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border: 1px solid #2c2c2e; text-align: center; padding: 0 10px; color: inherit; font: inherit; transition: transform 80ms ease, background 80ms ease; }
+        .btn:active { background: #2c2c2e; transform: scale(0.97); }
+        .btn:focus-visible { outline: 2px solid #0a84ff; outline-offset: 2px; }
         .btn-lbl { font-size: 14px; font-weight: 600; }
         .btn-sub { font-size: 10px; color: #8e8e93; margin-top: 3px; }
         .wide { grid-column: span 2; }
-        
-        .haptic-gate { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5; }
+
+        .blue { color: #30a2ff; }
+        .green { color: #34c759; } .bl-green { border-left: 4px solid #34c759; }
+        .yellow { color: #ffcc00; } .bl-yellow { border-left: 4px solid #ffcc00; }
+        .red { color: #ff3b30; } .bl-red { border-left: 4px solid #ff3b30; }
+        .purple { color: #af52de; } .bl-purple { border-left: 4px solid #af52de; }
+        .gray { color: #d1d1d6; }
+
+        @media (prefers-reduced-motion: reduce) { .btn { transition: none; } .btn:active { transform: none; } }
     </style>
 </head>
 <body>
 
     <h1>Taptic Engine Lab</h1>
-    <div class="subtitle">Инженерска софтверска симулација на Core Haptics</div>
+    <div class="subtitle">Вистински системски вибрации на iOS</div>
 
     <div class="monitor-panel">
         <div class="monitor-header">
-            <span>Анализатор на Сигнал</span>
-            <span style="color: #34c759;">Сензори Активни</span>
+            <span>Анализатор</span>
+            <span id="mode">Проверувам…</span>
         </div>
         <div class="live-metrics">
             <div class="metric-card">
-                <div class="metric-num" id="m-pattern">STANDBY</div>
+                <div class="metric-num" id="m-pattern">—</div>
                 <div class="metric-txt">Патерн</div>
             </div>
             <div class="metric-card">
@@ -54,136 +70,178 @@
                 <div class="metric-txt">Импулси</div>
             </div>
             <div class="metric-card">
-                <div class="metric-num" id="m-latency">0.0ms</div>
-                <div class="metric-txt">Латенција</div>
+                <div class="metric-num" id="m-latency">—</div>
+                <div class="metric-txt">Одзив на мостот</div>
             </div>
         </div>
     </div>
 
-        <!-- ТЕСТ КАТЕГОРИЈА 1: UIIMPACTFEEDBACK -->
-    <div class="section-title">UIImpactFeedbackGenerator</div>
-    <div class="grid">
-        <div class="btn">
-            <span class="btn-lbl" style="color: #30a2ff;">Light Impact</span>
-            <span class="btn-sub">Лесен фабрички клик</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('light')">
-        </div>
-        <div class="btn">
-            <span class="btn-lbl" style="color: #30a2ff;">Medium Impact</span>
-            <span class="btn-sub">Стандарден одзив</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('medium')">
-        </div>
-        <div class="btn">
-            <span class="btn-lbl" style="color: #30a2ff;">Heavy Impact</span>
-            <span class="btn-sub">Инстаграм лајк бран</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('heavy')">
-        </div>
-        <div class="btn">
-            <span class="btn-lbl" style="color: #30a2ff;">Soft Impact</span>
-            <span class="btn-sub">Пригушен низок бас</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('soft')">
-        </div>
-        <div class="btn wide">
-            <span class="btn-lbl" style="color: #30a2ff;">Rigid Impact</span>
-            <span class="btn-sub">Остар, крут и многу густ микро-удар</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('rigid')">
-        </div>
+    <div class="warning-box" id="web-warning">
+        Ова е отворено во прелистувач, па нема вистинска хаптика. Изгради ја апликацијата со Xcode и пушти ја на iPhone (симулаторот не вибрира).
     </div>
 
-    <!-- ТЕСТ КАТЕГОРИЈА 2: ДИНАМИЧКИ СИСТЕМСКИ СИГНАЛИ -->
-    <div class="section-title">UINotification & Advanced Patterns</div>
+    <div class="section-title">UIImpactFeedbackGenerator</div>
     <div class="grid">
-        <div class="btn wide" style="border-left: 4px solid #34c759;">
-            <span class="btn-lbl" style="color: #34c759;">Success Notification</span>
-            <span class="btn-sub">Два брзи тактилно темпирани импулси (Apple Pay)</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('success')">
-        </div>
-        <div class="btn wide" style="border-left: 4px solid #ffcc00;">
-            <span class="btn-lbl" style="color: #ffcc00;">Warning Pattern</span>
-            <span class="btn-sub">Два поодалечени тешки системски прекини</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('warning')">
-        </div>
-        <div class="btn wide" style="border-left: 4px solid #ff3b30;">
-            <span class="btn-lbl" style="color: #ff3b30;">Failure / Error</span>
-            <span class="btn-sub">Брза каскадна серија од 4 калибрирани тресења</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('error')">
-        </div>
-        <div class="btn wide" style="border-left: 4px solid #af52de;">
-            <span class="btn-lbl" style="color: #af52de;">Continuous Wheel Sim</span>
-            <span class="btn-sub">Симулација на динамичко тркалање со забрзување</span>
-            <input type="checkbox" switch class="haptic-gate" onclick="runHapticEngine('wheel')">
-        </div>
+        <button class="btn" data-pattern="light">
+            <span class="btn-lbl blue">Light</span>
+            <span class="btn-sub">Лесен, краток допир</span>
+        </button>
+        <button class="btn" data-pattern="medium">
+            <span class="btn-lbl blue">Medium</span>
+            <span class="btn-sub">Стандарден удар</span>
+        </button>
+        <button class="btn wide" data-pattern="heavy">
+            <span class="btn-lbl blue">Heavy</span>
+            <span class="btn-sub">Најсилниот impact стил</span>
+        </button>
+    </div>
+
+    <div class="section-title">UINotificationFeedbackGenerator</div>
+    <div class="grid">
+        <button class="btn wide bl-green" data-pattern="success">
+            <span class="btn-lbl green">Success</span>
+            <span class="btn-sub">Системски патерн за успех (како Apple Pay)</span>
+        </button>
+        <button class="btn wide bl-yellow" data-pattern="warning">
+            <span class="btn-lbl yellow">Warning</span>
+            <span class="btn-sub">Системски патерн за предупредување</span>
+        </button>
+        <button class="btn wide bl-red" data-pattern="error">
+            <span class="btn-lbl red">Error</span>
+            <span class="btn-sub">Системски патерн за грешка</span>
+        </button>
+    </div>
+
+    <div class="section-title">UISelectionFeedbackGenerator</div>
+    <div class="grid">
+        <button class="btn" data-pattern="tick">
+            <span class="btn-lbl purple">Selection tick</span>
+            <span class="btn-sub">Еден клик од picker</span>
+        </button>
+        <button class="btn" data-pattern="wheel">
+            <span class="btn-lbl purple">Тркалце</span>
+            <span class="btn-sub">Врти и забавува</span>
+        </button>
+    </div>
+
+    <div class="section-title">Комбинации</div>
+    <div class="grid">
+        <button class="btn" data-pattern="heartbeat">
+            <span class="btn-lbl gray">Срцебиење</span>
+            <span class="btn-sub">Heavy + Light, три пати</span>
+        </button>
+        <button class="btn" data-pattern="ramp">
+            <span class="btn-lbl gray">Скала</span>
+            <span class="btn-sub">Light → Medium → Heavy</span>
+        </button>
+        <button class="btn wide" data-pattern="vibrate">
+            <span class="btn-lbl gray">Долга вибрација</span>
+            <span class="btn-sub">Класично зуење, 400 ms</span>
+        </button>
     </div>
 
     <script>
-        // Помошна функција за испраќање на калибриран микро-импулс во точно одредено време
-        function dispatchHapticPulse(delayMs) {
-            const wrapper = document.createElement('div');
-            const uid = 'ch-pulse-' + Math.random().toString(36).substring(2);
-            wrapper.innerHTML = `<input type="checkbox" id="${uid}" switch><label for="${uid}"></label>`;
-            wrapper.setAttribute("style", "position:fixed; opacity:0; pointer-events:none; top:0; left:0;");
-            document.body.appendChild(wrapper);
-            const targetNode = wrapper.querySelector('label');
-            
-            setTimeout(() => { targetNode.click(); }, delayMs);
-            setTimeout(() => { wrapper.remove(); }, delayMs + 120);
+        const Cap = window.Capacitor;
+        const isNative = !!(Cap && Cap.isNativePlatform && Cap.isNativePlatform());
+        const H = isNative && Cap.Plugins ? Cap.Plugins.Haptics : null;
+
+        const modeEl = document.getElementById('mode');
+        if (H) {
+            modeEl.textContent = 'Нативно · iOS';
+            modeEl.className = 'native';
+        } else {
+            modeEl.textContent = 'Веб режим';
+            modeEl.className = 'web';
+            document.getElementById('web-warning').style.display = 'block';
         }
 
-        // НАПРЕДЕН МОДУЛАТОР НА СИГНАЛИ
-        function runHapticEngine(pattern) {
-            const startDiagnostic = performance.now();
-            let totalPulses = 0;
+        const wait = ms => new Promise(r => setTimeout(r, ms));
 
-            if (pattern === 'light') {
-                totalPulses = 1;
-            } 
-            else if (pattern === 'medium') {
-                totalPulses = 2;
-                dispatchHapticPulse(38); // Доцнење од 38ms за спречување на софтверски филтер
-            } 
-            else if (pattern === 'heavy') {
-                totalPulses = 3;
-                dispatchHapticPulse(24);
-                dispatchHapticPulse(48);
-            } 
-            else if (pattern === 'soft') {
-                totalPulses = 1;
-                dispatchHapticPulse(55); // Проширен тајминг за пониска тактилна фреквенција
-            }
-            else if (pattern === 'rigid') {
-                totalPulses = 2;
-                dispatchHapticPulse(18); // Многу тесен интервал за остар удар
-            }
-            else if (pattern === 'success') {
-                totalPulses = 2;
-                dispatchHapticPulse(42);
-            } 
-            else if (pattern === 'warning') {
-                totalPulses = 2;
-                dispatchHapticPulse(85); // Широк интервал за предупредување
-            } 
-            else if (pattern === 'error') {
-                totalPulses = 4;
-                dispatchHapticPulse(28);
-                dispatchHapticPulse(56);
-                dispatchHapticPulse(84);
-            }
-            else if (pattern === 'wheel') {
-                totalPulses = 5;
-                // Калибрирана серија на импулси која симулира забавување на механичко тркалце
-                dispatchHapticPulse(20);
-                dispatchHapticPulse(45);
-                dispatchHapticPulse(75);
-                dispatchHapticPulse(110);
-            }
+        // Основни повици. Вредностите се истите како ImpactStyle / NotificationType енумите.
+        const impact = style => H ? H.impact({ style }) : fallback(20);
+        const notify = type => H ? H.notification({ type }) : fallback(60);
+        const fallback = ms => { if (navigator.vibrate) navigator.vibrate(ms); return Promise.resolve(); };
 
-            requestAnimationFrame(() => {
-                const endDiagnostic = performance.now();
-                document.getElementById('m-latency').innerText = (endDiagnostic - startDiagnostic).toFixed(1) + 'ms';
-                document.getElementById('m-pulses').innerText = totalPulses;
-                document.getElementById('m-pattern').innerText = pattern.toUpperCase();
-            });
+        // Секој патерн враќа колку импулси испратил
+        const patterns = {
+            light:   async () => { await impact('LIGHT'); return 1; },
+            medium:  async () => { await impact('MEDIUM'); return 1; },
+            heavy:   async () => { await impact('HEAVY'); return 1; },
+
+            success: async () => { await notify('SUCCESS'); return 1; },
+            warning: async () => { await notify('WARNING'); return 1; },
+            error:   async () => { await notify('ERROR'); return 1; },
+
+            tick: async () => {
+                if (!H) { await fallback(10); return 1; }
+                await H.selectionStart();
+                await H.selectionChanged();
+                await H.selectionEnd();
+                return 1;
+            },
+
+            // Паузите растат, па тркалцето звучи како да забавува
+            wheel: async () => {
+                const gaps = [40, 45, 55, 65, 80, 100, 125, 160, 210];
+                if (H) await H.selectionStart();
+                for (const g of gaps) {
+                    if (H) await H.selectionChanged(); else fallback(8);
+                    await wait(g);
+                }
+                if (H) await H.selectionEnd();
+                return gaps.length;
+            },
+
+            heartbeat: async () => {
+                for (let i = 0; i < 3; i++) {
+                    await impact('HEAVY');
+                    await wait(140);
+                    await impact('LIGHT');
+                    await wait(550);
+                }
+                return 6;
+            },
+
+            ramp: async () => {
+                await impact('LIGHT');  await wait(180);
+                await impact('MEDIUM'); await wait(180);
+                await impact('HEAVY');
+                return 3;
+            },
+
+            vibrate: async () => {
+                if (H) await H.vibrate({ duration: 400 }); else await fallback(400);
+                return 1;
+            }
+        };
+
+        let busy = false;
+
+        async function run(name) {
+            if (busy) return;
+            busy = true;
+            const t0 = performance.now();
+            let pulses = 0;
+            try {
+                // Одзивот се мери само за првиот повик кон нативниот дел
+                pulses = await patterns[name]();
+            } catch (err) {
+                document.getElementById('m-pattern').textContent = 'ГРЕШКА';
+                console.error(err);
+                busy = false;
+                return;
+            }
+            const firstCallMs = performance.now() - t0;
+            document.getElementById('m-pattern').textContent = name.toUpperCase();
+            document.getElementById('m-pulses').textContent = pulses;
+            document.getElementById('m-latency').textContent =
+                pulses === 1 ? firstCallMs.toFixed(1) + ' ms' : '—';
+            busy = false;
         }
+
+        document.querySelectorAll('[data-pattern]').forEach(btn => {
+            btn.addEventListener('click', () => run(btn.dataset.pattern));
+        });
 
         document.addEventListener('gesturestart', e => e.preventDefault());
     </script>
