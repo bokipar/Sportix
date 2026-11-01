@@ -1,184 +1,592 @@
+
 <!DOCTYPE html>
 <html lang="mk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>iOS Ultimate Haptic Laboratory with Live Waveform</title>
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Haptic Lab Suite 4.0</title>
 
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
-        body { background-color: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 30px 15px; min-height: 100vh; }
-        
-        h1 { font-size: 22px; font-weight: 700; margin-bottom: 5px; text-align: center; letter-spacing: -0.5px; }
-        .subtitle { color: #8e8e93; font-size: 13px; margin-bottom: 20px; text-align: center; }
-        
-        /* 1. ГРАФИЧКИ ГЕНЕРАТОР НА БРАНОВИ (WAVEFORM VISUALIZER) */
-        .wave-panel { width: 100%; max-width: 380px; background: #121212; border-radius: 14px; padding: 15px; margin-bottom: 15px; border: 1px solid #1c1c1c; }
-        .wave-header { font-size: 11px; color: #8e8e93; font-weight: 600; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
-        .wave-canvas { width: 100%; height: 60px; display: flex; align-items: center; justify-content: center; gap: 3px; background: #000; border-radius: 8px; overflow: hidden; padding: 0 10px; }
-        .wave-bar { width: 4px; height: 4px; background: #34c759; border-radius: 2px; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
 
-        /* ЦЕНТРАЛЕН КОНТРОЛЕН ПАНЕЛ */
-        .control-panel { width: 100%; max-width: 380px; background: #1c1c1e; border-radius: 16px; padding: 18px; margin-bottom: 15px; border: 1px solid #2c2c2e; }
-        .panel-section { margin-bottom: 18px; }
-        .panel-section:last-child { margin-bottom: 0; }
-        
-        .label-group { display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 600; margin-bottom: 8px; color: #a8a8a8; }
-        .label-group span b { color: #34c759; }
-        
-        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #2c2c2e; border-radius: 3px; outline: none; touch-action: pan-x !important; pointer-events: auto !important; margin-bottom: 10px; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: #34c759; border-radius: 50%; cursor: pointer; pointer-events: auto !important; }
+body {
+    background: #000;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 15px;
+    min-height: 100vh;
+}
 
-        .selector-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; width: 100%; }
-        .selector-num { background: #2c2c2e; border: 1px solid #3a3a3c; border-radius: 8px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #fff; cursor: pointer; pointer-events: auto !important; }
-        .selector-num.active { background: #34c759; border-color: #34c759; color: #000; }
+h1 {
+    font-size: 23px;
+    margin-bottom: 6px;
+    letter-spacing: -.6px;
+}
 
-        /* ЗОНА ЗА ТЕСТИРАЊЕ СО SWIPE */
-        .swipe-zone { width: 100%; max-width: 380px; height: 90px; background: #1c1c1e; border: 2px dashed #34c759; border-radius: 16px; display: flex; justify-content: space-around; align-items: center; padding: 0 15px; position: relative; overflow: hidden; margin-bottom: 15px; pointer-events: auto !important; }
-        .swipe-instruction { position: absolute; font-size: 13px; color: #8e8e93; font-weight: 600; pointer-events: none; text-align: center; width: 100%; top: 38%; }
-        .real-switch { width: 45px; height: 45px; opacity: 0; z-index: 5; cursor: pointer; -webkit-appearance: none; pointer-events: auto !important; }
-    </style>
+.subtitle {
+    color: #8e8e93;
+    font-size: 12px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.wave-panel,
+.control-panel,
+.swipe-zone,
+.test-panel {
+    width: 100%;
+    max-width: 380px;
+    border-radius: 16px;
+    margin-bottom: 15px;
+}
+
+.wave-panel {
+    background: #121212;
+    padding: 16px;
+    border: 1px solid #282828;
+}
+
+.wave-header {
+    font-size: 11px;
+    color: #8e8e93;
+    font-weight: 700;
+    margin-bottom: 13px;
+    letter-spacing: .5px;
+}
+
+.wave-canvas {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: #000;
+    border-radius: 9px;
+    padding: 0 8px;
+    overflow: hidden;
+}
+
+.wave-bar {
+    flex: 1;
+    max-width: 6px;
+    height: 3px;
+    background: #303034;
+    border-radius: 5px;
+    transition: height .15s ease, background .15s ease;
+}
+
+.wave-bar.active {
+    background: #34c759;
+}
+
+.wave-bar.strong {
+    background: #ff453a;
+}
+
+.control-panel {
+    background: #1c1c1e;
+    padding: 19px;
+    border: 1px solid #333;
+}
+
+.panel-section {
+    margin-bottom: 23px;
+}
+
+.panel-section:last-child {
+    margin-bottom: 0;
+}
+
+.label-group {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    color: #aaa;
+    margin-bottom: 12px;
+}
+
+.label-group b {
+    color: #34c759;
+}
+
+input[type=range] {
+    width: 100%;
+    height: 6px;
+    appearance: none;
+    -webkit-appearance: none;
+    background: #38383a;
+    border-radius: 5px;
+    outline: none;
+    touch-action: pan-x;
+    margin-bottom: 12px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 23px;
+    height: 23px;
+    background: #34c759;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.selector-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+}
+
+.selector-num {
+    background: #303034;
+    border: 1px solid #454549;
+    border-radius: 8px;
+    height: 34px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.selector-num.active {
+    background: #34c759;
+    border-color: #34c759;
+    color: #000;
+}
+
+.swipe-zone {
+    height: 105px;
+    background: #1c1c1e;
+    border: 2px dashed #34c759;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    touch-action: pan-y;
+}
+
+.swipe-instruction {
+    color: #aaa;
+    font-size: 13px;
+    font-weight: 600;
+    pointer-events: none;
+    text-align: center;
+    padding: 10px;
+}
+
+.swipe-zone.running {
+    border-color: #ff453a;
+    background: #20201f;
+}
+
+.test-panel {
+    background: #1c1c1e;
+    padding: 15px;
+    border: 1px solid #333;
+}
+
+.test-button {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    background: #34c759;
+    color: #000;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.test-button:active {
+    transform: scale(.97);
+}
+
+.test-button:disabled {
+    opacity: .5;
+}
+
+.status {
+    text-align: center;
+    font-size: 11px;
+    color: #8e8e93;
+    margin-top: 12px;
+    line-height: 1.5;
+}
+
+.footer {
+    color: #666;
+    font-size: 10px;
+    text-align: center;
+    margin-top: 10px;
+    max-width: 350px;
+    line-height: 1.5;
+}
+</style>
 </head>
+
 <body>
 
-    <h1>Haptic Lab Suite v3.0</h1>
-    <div class="subtitle">Целосна софтверска модулација и графичка визуелизација</div>
+<h1>Haptic Lab Suite 4.0</h1>
+<div class="subtitle">
+    Advanced Haptic Control & Live Waveform
+</div>
 
-    <!-- ЖИВ ГРАФИЧКИ ГЕНЕРАТОР НА ТАПТИЧКИ БРАНОВИ -->
-    <div class="wave-panel">
-        <div class="wave-header">Генератор на хаптички бран (Live Waveform)</div>
-        <div class="wave-canvas" id="canvas-container"></div>
-    </div>
+<div class="wave-panel">
+    <div class="wave-header">LIVE HAPTIC WAVEFORM</div>
+    <div class="wave-canvas" id="canvas-container"></div>
+</div>
 
-        <!-- ГЛАВЕН ПАНЕЛ ОД КАДЕ ШТО МЕНУВАШ СЀ -->
-    <div class="control-panel">
-        <div class="panel-section">
-            <div class="label-group">
-                <span>Број на импулси (Pulses)</span>
-                <span><b id="lbl-count">4</b> вибрации</span>
-            </div>
-            <input type="range" id="input-count" min="1" max="6" value="4" oninput="changeCountBySlider(this.value)">
-            <div class="selector-grid">
-                <div class="selector-num" onclick="changeCountByBtn(1)">1</div>
-                <div class="selector-num" onclick="changeByBtn(2)">2</div>
-                <div class="selector-num" onclick="changeCountByBtn(3)">3</div>
-                <div class="selector-num selector-num active" onclick="changeCountByBtn(4)">4</div>
-                <div class="selector-num" onclick="changeCountByBtn(5)">5</div>
-                <div class="selector-num" onclick="changeCountByBtn(6)">6</div>
-            </div>
+<div class="control-panel">
+
+    <div class="panel-section">
+        <div class="label-group">
+            <span>Број на импулси</span>
+            <span><b id="lbl-count">4</b> вибрации</span>
         </div>
 
-        <div class="panel-section">
-            <div class="label-group">
-                <span>Интервал помеѓу прекини</span>
-                <span><b id="lbl-interval">35</b> ms</span>
-            </div>
-            <input type="range" id="input-interval" min="15" max="120" value="35" oninput="updateInterval(this.value)">
-        </div>
+        <input type="range" id="input-count"
+               min="1" max="6" value="4">
 
-        <div class="panel-section">
-            <div class="label-group">
-                <span>Сила на удар (Amplitude)</span>
-                <span><b id="lbl-amplitude">80</b> %</span>
-            </div>
-            <input type="range" id="input-amplitude" min="20" max="100" value="80" oninput="updateAmplitude(this.value)">
+        <div class="selector-grid">
+            <div class="selector-num" data-count="1">1</div>
+            <div class="selector-num" data-count="2">2</div>
+            <div class="selector-num" data-count="3">3</div>
+            <div class="selector-num active" data-count="4">4</div>
+            <div class="selector-num" data-count="5">5</div>
+            <div class="selector-num" data-count="6">6</div>
         </div>
     </div>
 
-    <!-- ИНТЕРАКТИВНА ЗОНА ЗА ТЕСТИРАЊЕ СО ПОВЛЕКУВАЊЕ (SWIPE) -->
-    <div class="swipe-zone" id="pad-zone">
-        <div class="swipe-instruction" id="ins-text">Повлечи со прст од лево на десно ➔</div>
+    <div class="panel-section">
+        <div class="label-group">
+            <span>Интервал помеѓу импулси</span>
+            <span><b id="lbl-interval">35</b> ms</span>
+        </div>
+
+        <input type="range" id="input-interval"
+               min="15" max="120" value="35">
     </div>
 
-    <script>
-        // Иницијално цртање на 35 барови во графичкиот генератор
-        const canvas = document.getElementById('canvas-container');
-        for (let i = 0; i < 35; i++) {
-            const bar = document.createElement('div');
-            bar.className = 'wave-bar';
-            canvas.appendChild(bar);
+    <div class="panel-section">
+        <div class="label-group">
+            <span>Сила на импулс</span>
+            <span><b id="lbl-amplitude">80</b> %</span>
+        </div>
+
+        <input type="range" id="input-amplitude"
+               min="20" max="100" value="80">
+    </div>
+
+</div>
+
+<div class="swipe-zone" id="pad-zone">
+    <div class="swipe-instruction" id="ins-text">
+        ПОВЛЕЧИ СО ПРСТ ОД ЛЕВО НА ДЕСНО ➜
+    </div>
+</div>
+
+<div class="test-panel">
+    <button class="test-button" id="test-button">
+        ▶ ТЕСТИРАЈ ВИБРАЦИЈА
+    </button>
+
+    <div class="status" id="status">
+        Системот е подготвен
+    </div>
+</div>
+
+<div class="footer">
+    Haptic Lab Suite 4.0 · Software Waveform Simulator
+</div>
+
+<script>
+
+// SETTINGS
+const countInput = document.getElementById("input-count");
+const intervalInput = document.getElementById("input-interval");
+const amplitudeInput = document.getElementById("input-amplitude");
+
+const countLabel = document.getElementById("lbl-count");
+const intervalLabel = document.getElementById("lbl-interval");
+const amplitudeLabel = document.getElementById("lbl-amplitude");
+
+const canvas = document.getElementById("canvas-container");
+const pad = document.getElementById("pad-zone");
+const status = document.getElementById("status");
+const testButton = document.getElementById("test-button");
+
+let bars = [];
+let animationFrame = null;
+let isRunning = false;
+
+// CREATE WAVEFORM
+for (let i = 0; i < 35; i++) {
+    const bar = document.createElement("div");
+    bar.className = "wave-bar";
+    canvas.appendChild(bar);
+    bars.push(bar);
+}
+
+// GET SETTINGS
+function getSettings() {
+    return {
+        count: Number(countInput.value),
+        interval: Number(intervalInput.value),
+        amplitude: Number(amplitudeInput.value)
+    };
+}
+
+// UPDATE INTERFACE
+function updateInterface() {
+    const settings = getSettings();
+
+    countLabel.textContent = settings.count;
+    intervalLabel.textContent = settings.interval;
+    amplitudeLabel.textContent = settings.amplitude;
+
+    document.querySelectorAll(".selector-num").forEach(btn => {
+        btn.classList.toggle(
+            "active",
+            Number(btn.dataset.count) === settings.count
+        );
+    });
+
+    drawWaveform();
+}
+
+// DRAW WAVEFORM
+function drawWaveform() {
+    const { count, interval, amplitude } = getSettings();
+
+    bars.forEach(bar => {
+        bar.style.height = "3px";
+        bar.className = "wave-bar";
+    });
+
+    const maxSpacing = 29;
+    const spacing = Math.max(
+        1,
+        Math.round((interval / 120) * maxSpacing)
+    );
+
+    const start = Math.max(
+        1,
+        Math.floor((35 - (count - 1) * spacing) / 2)
+    );
+
+    for (let i = 0; i < count; i++) {
+        const position = start + i * spacing;
+
+        if (position < bars.length) {
+            const bar = bars[position];
+            bar.style.height =
+                (5 + amplitude * 0.5) + "px";
+
+            bar.classList.add(
+                amplitude > 75 ? "strong" : "active"
+            );
         }
-        const waveBars = document.querySelectorAll('.wave-bar');
+    }
+}
 
-        function changeCountBySlider(val) { updateHapticInterface(parseInt(val), null, null); }
-        function changeCountByBtn(val) { document.getElementById('input-count').value = val; updateHapticInterface(val, null, null); }
-        function updateInterval(val) { updateHapticInterface(null, parseInt(val), null); }
-        function updateAmplitude(val) { updateHapticInterface(null, null, parseInt(val)); }
+// COUNT BUTTONS
+document.querySelectorAll(".selector-num").forEach(btn => {
+    btn.addEventListener("click", () => {
+        countInput.value = btn.dataset.count;
+        updateInterface();
+    });
+});
 
-        // ЦЕНТРАЛЕН МОДУЛАТОР И ГЕНЕРАТОР НА ИНТЕРФЕЈСОТ
-        function updateHapticInterface(count, interval, amplitude) {
-            const currentCount = count !== null ? count : parseInt(document.getElementById('input-count').value);
-            const currentInterval = interval !== null ? interval : parseInt(document.getElementById('input-interval').value);
-            const currentAmplitude = amplitude !== null ? amplitude : parseInt(document.getElementById('input-amplitude').value);
+// SLIDERS
+countInput.addEventListener("input", updateInterface);
+intervalInput.addEventListener("input", updateInterface);
+amplitudeInput.addEventListener("input", updateInterface);
 
-            // Ажурирање на текстуалните лабели
-            document.getElementById('lbl-count').innerText = currentCount;
-            document.getElementById('lbl-interval').innerText = currentInterval;
-            document.getElementById('lbl-amplitude').innerText = currentAmplitude;
+// ANIMATE WAVEFORM
+function animateWaveform() {
+    if (!isRunning) return;
 
-            // Смена на активното копче кај бројките
-            const btns = document.querySelectorAll('.selector-num');
-            btns.forEach((btn, idx) => {
-                if (idx + 1 === currentCount) { btn.classList.add('active'); } 
-                else { btn.classList.remove('active'); }
-            });
+    const { count, interval, amplitude } = getSettings();
 
-            // 1. РЕКОНСТРУКЦИЈА НА ЖИВИОТ ГРАФИК (WAVEFORM VISUALIZATION)
-            // Прво ги ресетираме сите барови на почетна нулта точка
-            waveBars.forEach(bar => { bar.style.height = '4px'; bar.style.background = '#2c2c2e'; });
+    const duration = Math.max(
+        150,
+        count * (interval + 20)
+    );
 
-            // Математички ги пресметуваме позициите на пиковите на хаптичкиот бран
-            // Растојанието помеѓу пиковите зависи директно од одбраниот интервал во ms
-            const step = Math.max(1, Math.round(currentInterval / 12)); 
-            let assignedPulses = 0;
+    const startTime = performance.now();
 
-            for (let i = 2; i < waveBars.length; i += step) {
-                if (assignedPulses >= currentCount) break;
-                
-                // Му даваме на пикот висина соодветно на слајдерот за Amplitude (%)
-                const calculatedHeight = (currentAmplitude / 100) * 50;
-                waveBars[i].style.height = calculatedHeight + 'px';
-                
-                // Промена на бојата во зависност од јачината (зелена за меко, црвена за силно)
-                if (currentAmplitude > 75) {
-                    waveBars[i].style.background = '#ff3b30'; // Остар силен шок
-                } else {
-                    waveBars[i].style.background = '#34c759'; // Нативен фидбек
-                }
-                assignedPulses++;
+    function frame(now) {
+        if (!isRunning) return;
+
+        const elapsed = now - startTime;
+        const progress = elapsed % duration;
+
+        const pulseIndex = Math.floor(
+            progress / (interval + 20)
+        );
+
+        const active = pulseIndex < count;
+
+        bars.forEach((bar, index) => {
+            const distance = Math.abs(
+                index - (5 + pulseIndex * 4)
+            );
+
+            if (active && distance < 3) {
+                const height = Math.max(
+                    3,
+                    (amplitude / 100) * 55 *
+                    (1 - distance * 0.3)
+                );
+
+                bar.style.height = height + "px";
+                bar.className =
+                    amplitude > 75
+                    ? "wave-bar strong"
+                    : "wave-bar active";
+            } else {
+                bar.style.height = "3px";
+                bar.className = "wave-bar";
             }
+        });
 
-            // 2. РЕКОНСТРУКЦИЈА НА ФИЗИЧКИТЕ ПРЕКИНУВАЧИ ДОЛУ ЗА SWIPE ТЕСТ
-            const padZone = document.getElementById('pad-zone');
-            padZone.innerHTML = `<div class="swipe-instruction" id="ins-text">Повлечи со прст од лево на десно ➔</div>`;
-            
-            for (let i = 0; i < currentCount; i++) {
-                const sw = document.createElement('input');
-                sw.setAttribute('type', 'checkbox');
-                sw.setAttribute('switch', ''); 
-                sw.className = 'real-switch';
-                
-                // Физичкото растојание на екранот соодветствува со графичкиот приказ горе
-                const spacing = (currentInterval / 120) * 18;
-                sw.style.marginLeft = spacing + 'px';
-                sw.style.marginRight = spacing + 'px';
-                
-                sw.addEventListener('touchstart', () => {
-                    const txt = document.getElementById('ins-text');
-                    if(txt) txt.style.opacity = '0';
-                });
-                
-                padZone.appendChild(sw);
+        animationFrame = requestAnimationFrame(frame);
+    }
+
+    animationFrame = requestAnimationFrame(frame);
+}
+
+// STOP ANIMATION
+function stopAnimation() {
+    isRunning = false;
+
+    if (animationFrame !== null) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+    }
+
+    drawWaveform();
+    pad.classList.remove("running");
+}
+
+// RUN TEST
+function runTest() {
+    if (isRunning) return;
+
+    const { count, interval, amplitude } = getSettings();
+
+    isRunning = true;
+    pad.classList.add("running");
+
+    status.textContent =
+        "Тестирање: " + count +
+        " импулси · " + interval +
+        " ms · " + amplitude + "%";
+
+    testButton.disabled = true;
+
+    animateWaveform();
+
+    // Vibration API support check
+    if ("vibrate" in navigator) {
+
+        // Vibration duration is approximate.
+        // The browser does not expose amplitude control.
+        const pulseDuration = Math.max(
+            10,
+            Math.round(10 + amplitude * 0.2)
+        );
+
+        const pattern = [];
+
+        for (let i = 0; i < count; i++) {
+            pattern.push(pulseDuration);
+
+            if (i < count - 1) {
+                pattern.push(interval);
             }
         }
 
-        // Почетно вчитување со дефолт вредности (4 пулса, 35ms, 80% јачина)
-        updateHapticInterface(4, 35, 80);
+        try {
+            navigator.vibrate(pattern);
+        } catch (error) {
+            console.log("Vibration unavailable", error);
+        }
 
-        document.addEventListener('gesturestart', e => e.preventDefault());
-    </script>
+    } else {
+        status.textContent =
+            "Визуелна симулација: овој прелистувач не поддржува Vibration API.";
+    }
+
+    const totalDuration =
+        count * (interval + 100) + 500;
+
+    setTimeout(() => {
+        stopAnimation();
+
+        testButton.disabled = false;
+
+        if (!("vibrate" in navigator)) {
+            status.textContent =
+                "Симулацијата заврши. Нема поддршка за физичка вибрација.";
+        } else {
+            status.textContent =
+                "Тестирањето заврши · Системот е подготвен";
+        }
+    }, totalDuration);
+}
+
+// TEST BUTTON
+testButton.addEventListener("click", runTest);
+
+// SWIPE DETECTION
+let startX = 0;
+let startY = 0;
+
+pad.addEventListener("pointerdown", event => {
+    startX = event.clientX;
+    startY = event.clientY;
+
+    const instruction = document.getElementById("ins-text");
+
+    if (instruction) {
+        instruction.style.opacity = "0";
+    }
+});
+
+pad.addEventListener("pointerup", event => {
+    const diffX = event.clientX - startX;
+    const diffY = event.clientY - startY;
+
+    if (diffX > 50 && Math.abs(diffX) > Math.abs(diffY)) {
+        runTest();
+    }
+
+    const instruction = document.getElementById("ins-text");
+
+    if (instruction) {
+        instruction.style.opacity = "1";
+    }
+});
+
+// INITIALIZATION
+updateInterface();
+
+</script>
 </body>
 </html>
